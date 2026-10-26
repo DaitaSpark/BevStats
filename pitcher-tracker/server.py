@@ -41,8 +41,8 @@ def configure_demo_account():
     username = os.environ.get('BEVSTATS_LOGIN_USERNAME', '').strip()
     password = os.environ.get('BEVSTATS_LOGIN_PASSWORD', '')
     display = os.environ.get('BEVSTATS_LOGIN_NAME', username).strip()
-    if not 1 <= len(username) <= 80 or not 1 <= len(display) <= 80 or not 12 <= len(password) <= 256:
-        raise ValueError('Demo mode requires BEVSTATS_LOGIN_USERNAME and BEVSTATS_LOGIN_PASSWORD (12-256 characters); optional BEVSTATS_LOGIN_NAME must be 1-80 characters.')
+    if not 1 <= len(username) <= 80 or not 1 <= len(display) <= 80 or not 4 <= len(password) <= 256:
+        raise ValueError('Demo mode requires BEVSTATS_LOGIN_USERNAME and BEVSTATS_LOGIN_PASSWORD (4-256 characters); optional BEVSTATS_LOGIN_NAME must be 1-80 characters.')
     with connect() as db:
         user = db.execute('SELECT * FROM users WHERE username=?', (username,)).fetchone()
         if user and hmac.compare_digest(password_hash(password, user['salt']), user['password_hash']):
@@ -142,9 +142,9 @@ class Handler(BaseHTTPRequestHandler):
         username = username.strip()
         with connect() as db:
             if self.path == '/api/setup':
-                display = body.get('display_name', '')
-                if not username or not isinstance(display, str) or not 1 <= len(display.strip()) <= 80 or len(password) < 12:
-                    return self.send(400, {'error': 'Enter your name, a username, and a password of at least 12 characters.'})
+                display = body.get('display_name', username)
+                if not username or not isinstance(display, str) or not 1 <= len(display.strip()) <= 80 or len(password) < 4:
+                    return self.send(400, {'error': 'Enter a username and a password of at least 4 characters.'})
                 salt = secrets.token_hex(16)
                 hashed = password_hash(password, salt)
                 db.execute('BEGIN IMMEDIATE')
@@ -228,8 +228,8 @@ if __name__ == '__main__':
     if '--create-user' in sys.argv:
         username = input('Username: ').strip()
         display_name = input('Display name: ').strip()
-        password = getpass.getpass('Password (12+ characters): ')
-        if not 1 <= len(username) <= 80 or not 1 <= len(display_name) <= 80 or not 12 <= len(password) <= 256:
+        password = getpass.getpass('Password (4+ characters): ')
+        if not 1 <= len(username) <= 80 or not 1 <= len(display_name) <= 80 or not 4 <= len(password) <= 256:
             sys.exit('Invalid name or password length.')
         if password != getpass.getpass('Confirm password: '):
             sys.exit('Passwords do not match.')

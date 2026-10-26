@@ -13,7 +13,7 @@ cd C:\Users\jeffe\BevTracker\pitcher-tracker
 python server.py
 ```
 
-Open http://localhost:8000. Keep the terminal running. The first start creates 18 clearly labeled sample locations with sales, goals, regions, and salespeople. The initial modal lets you create the first account; choose a username, display name, and password of at least 12 characters. Later visits require sign-in unless an existing session is still valid. **Start fresh** removes sample data. Use **Edit table** to add locations, set goals, and enter cumulative delivered-can totals. Click **Save changes** to update the pitchers. A goal of 2,400 cans is a sample default, not a business rule. Convert cases to cans before entering totals.
+Open http://localhost:8000. Keep the terminal running. The first start creates 18 clearly labeled sample locations with sales, goals, regions, and salespeople. The initial modal lets you create the first account; choose a username and password of at least 4 characters. Later visits require sign-in unless an existing session is still valid. **Start fresh** removes sample data. Use **Edit table** to add locations, set goals, and enter cumulative delivered-can totals. Click **Save changes** to update the pitchers. A goal of 2,400 cans is a sample default, not a business rule. Convert cases to cans before entering totals.
 
 Records persist in `sales.sqlite3`, shared by browsers connected to this server. Other viewers refresh every 30 seconds. Back up that file while the server is stopped. CSV export downloads the saved table. Editing is a full-table save; coordinate one editor at a time to avoid overwriting another person's changes.
 
@@ -43,7 +43,7 @@ Use Edit table to assign regions and salespeople. Filters pause while editing so
 
 ## Accounts and verification
 
-Passwords are salted and hashed with PBKDF2-SHA256 (600,000 iterations). Sessions are stored as token hashes in SQLite and expire after eight hours. The browser receives an HttpOnly, SameSite=Strict cookie; signing out revokes that session. Failed authentication is rate-limited per IP to ten attempts per ten minutes (in memory, reset on process restart). The header displays the signed-in account's display name and initials.
+Passwords are salted and hashed with PBKDF2-SHA256 (600,000 iterations). Sessions are stored as token hashes in SQLite and expire after eight hours. The browser receives an HttpOnly, SameSite=Strict cookie; signing out revokes that session. Failed authentication is rate-limited per IP to ten attempts per ten minutes (in memory, reset on process restart). The header displays the signed-in account's username and initials.
 
 To provision an additional colleague account from the server terminal:
 
@@ -65,7 +65,7 @@ Stat labels use larger, bold text. Each pitcher card places its location name an
 
 ## Render Free demo mode
 
-Set `HOST=0.0.0.0`, `BEVSTATS_DEMO_MODE=1`, `BEVSTATS_LOGIN_USERNAME`, and a secret `BEVSTATS_LOGIN_PASSWORD` of 12?256 characters. Optionally set `BEVSTATS_LOGIN_NAME`. Remove the old `BEVTRACKER_DB=/var/data/sales.sqlite3` setting. No disk is needed. Demo mode refuses startup if credentials are missing or invalid, avoiding an unclaimed public account setup after every reset.
+Set `HOST=0.0.0.0`, `BEVSTATS_DEMO_MODE=1`, `BEVSTATS_LOGIN_USERNAME`, and a secret `BEVSTATS_LOGIN_PASSWORD` of 4-256 characters. Optionally set `BEVSTATS_LOGIN_NAME`. Remove the old `BEVTRACKER_DB=/var/data/sales.sqlite3` setting. No disk is needed. Demo mode refuses startup if credentials are missing or invalid, avoiding an unclaimed public account setup after every reset.
 
 The server restores its 18 sample records and configured account when temporary storage is lost. Sales edits persist only while that temporary filesystem survives. The sign-in modal explains demo storage. CSV export remains available; restoring a CSV through the UI is not yet supported. This does not provide durable shared storage for real delivery reports.
 

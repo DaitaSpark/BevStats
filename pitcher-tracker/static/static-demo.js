@@ -18,7 +18,7 @@ window.BEVSTATS_SAMPLE_LOCATIONS=[{"name": "The Corner Tap", "cans": 1848, "goal
   const sampleData = () => ({sample: true, locations: window.BEVSTATS_SAMPLE_LOCATIONS.map((row, index) => ({
     id: index + 1, ...row, updated: new Date().toISOString().slice(0, 19).replace('T', ' ')
   }))});
-  const publicUser = account => ({id: 1, username: account.username, display_name: account.display_name});
+  const publicUser = account => ({id: 1, username: account.username, display_name: account.username});
   function user() {
     const account = read(localStorage, accountKey, null);
     const session = read(sessionStorage, sessionKey, null);
@@ -62,9 +62,9 @@ window.BEVSTATS_SAMPLE_LOCATIONS=[{"name": "The Corner Tap", "cans": 1848, "goal
         if (!username || username.length > 80 || typeof body.password !== 'string' || body.password.length > 256) return reply(400, {error: 'Invalid sign-in details.'});
         if (path === '/api/setup') {
           if (account) return reply(409, {error: 'A demo profile already exists in this browser. Please sign in.'});
-          if (typeof body.display_name !== 'string' || !body.display_name.trim() || body.display_name.trim().length > 80 || body.password.length < 12) return reply(400, {error: 'Enter a name, username and demo password of at least 12 characters.'});
+          if (body.password.length < 4) return reply(400, {error: 'Enter a username and demo password of at least 4 characters.'});
           const salt = Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, '0')).join('');
-          account = {username, display_name: body.display_name.trim(), salt, password_hash: await hash(body.password, salt)};
+          account = {username, display_name: username, salt, password_hash: await hash(body.password, salt)};
           // Recheck after asynchronous hashing to avoid replacing a profile from another tab.
           if (read(localStorage, accountKey, null)) return reply(409, {error: 'A demo profile already exists. Please sign in.'});
           localStorage.setItem(accountKey, JSON.stringify(account));

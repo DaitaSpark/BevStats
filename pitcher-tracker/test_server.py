@@ -44,14 +44,14 @@ class AuthenticationTests(unittest.TestCase):
             return response.code, json.load(response), response.headers
 
     def test_authentication_and_protected_sales(self):
-        account = {'username': 'corey', 'display_name': 'Corey', 'password': 'a test password 123'}
+        account = {'username': 'corey', 'password': 'test'}
         self.assertTrue(self.request('/api/session')[1]['setup_required'])
         self.assertEqual(self.request('/api/locations')[0], 401)
         self.assertEqual(self.request('/api/locations', {'locations': []})[0], 401)
-        self.assertEqual(self.request('/api/setup', {**account, 'password': 'short'})[0], 400)
+        self.assertEqual(self.request('/api/setup', {**account, 'password': 'abc'})[0], 400)
         code, body, headers = self.request('/api/setup', account)
         self.assertEqual(code, 200)
-        self.assertEqual(body['user']['display_name'], 'Corey')
+        self.assertEqual(body['user']['display_name'], 'corey')
         self.assertIn('HttpOnly', headers['Set-Cookie'])
         self.assertIn('SameSite=Strict', headers['Set-Cookie'])
         self.assertNotIn('password', body['user'])
@@ -111,7 +111,7 @@ class AuthenticationTests(unittest.TestCase):
             self.assertEqual(len(self.request('/api/locations')[1]['locations']), 18)
             self.assertEqual(self.request('/api/session')[1]['user']['display_name'], 'Demo Viewer')
             self.assertTrue(self.request('/api/session')[1]['demo_mode'])
-            with patch.dict(server.os.environ, {'BEVSTATS_LOGIN_PASSWORD': 'short'}):
+            with patch.dict(server.os.environ, {'BEVSTATS_LOGIN_PASSWORD': 'abc'}):
                 with self.assertRaises(ValueError):
                     server.configure_demo_account()
 

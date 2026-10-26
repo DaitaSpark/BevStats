@@ -19,7 +19,7 @@ There is **no start command**, disk, database, or required environment variable.
 
 ### What is saved
 
-- A new browser starts with all 18 sample locations.
+- A new browser starts with all 18 sample locations. The demo profile needs only a username and a password of at least four characters. The header shows the username; existing profiles and passwords continue to work.
 - Sales edits and one demo profile are saved in that browser's local storage and survive page reloads and redeploys at the same origin.
 - Signing out clears the tab's session, not the saved sales. Sessions expire after eight hours.
 - Data and profiles are **not shared across devices, browsers, domains, or colleagues**. Everyone begins with their own sample data. Profiles on different devices can have different names and passwords.
