@@ -2,6 +2,8 @@
 (() => {
   'use strict';
   window.BEVSTATS_STATIC_DEMO = true;
+  // Keep authentication available for the future data layer; bypass it for now.
+  window.BEVSTATS_DEMO_AUTH_ENABLED = false;
   const originalFetch = window.fetch.bind(window);
   const dataKey = 'bevstats.demo.sales.v1';
   const accountKey = 'bevstats.demo.account.v1';
@@ -19,6 +21,7 @@
   }))});
   const publicUser = account => ({id: 1, username: account.username, display_name: account.username});
   function user() {
+    if (!window.BEVSTATS_DEMO_AUTH_ENABLED) return {id: 1, username: 'Corey', display_name: 'Corey'};
     const account = read(localStorage, accountKey, null);
     const session = read(sessionStorage, sessionKey, null);
     return account && session && session.username === account.username && session.expires > Date.now() ? publicUser(account) : null;
@@ -48,7 +51,7 @@
       const method = (options.method || 'GET').toUpperCase();
       const path = url.pathname;
       if (method === 'GET' && path === '/api/session') return reply(200, {
-        user: user(), setup_required: !read(localStorage, accountKey, null), demo_mode: true, static_demo: true
+        user: user(), setup_required: window.BEVSTATS_DEMO_AUTH_ENABLED && !read(localStorage, accountKey, null), demo_mode: true, static_demo: true
       });
       if (method === 'POST' && path === '/api/logout') {
         sessionStorage.removeItem(sessionKey);

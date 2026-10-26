@@ -19,12 +19,14 @@ There is **no start command**, disk, database, or required environment variable.
 
 ### What is saved
 
-- A new browser starts with all 18 sample locations. The demo profile needs only a username and a password of at least four characters. The header shows the username; existing profiles and passwords continue to work.
+- A new browser opens directly with all 18 sample locations as **Corey**, without a login modal or sign-out button. Authentication is temporarily bypassed; its code and existing browser profiles are retained.
 - Sales edits and one demo profile are saved in that browser's local storage and survive page reloads and redeploys at the same origin.
-- Signing out clears the tab's session, not the saved sales. Sessions expire after eight hours.
+- The retained sign-in flow uses a username and minimum four-character demo password, with eight-hour sessions. It is currently disabled; no profile or password is required.
 - Data and profiles are **not shared across devices, browsers, domains, or colleagues**. Everyone begins with their own sample data. Profiles on different devices can have different names and passwords.
-- This is a public demo. The sign-in modal demonstrates the flow; browser-only sign-in does **not** protect private data. Use a demo password. Demo passwords are salted and hashed in the browser rather than stored as plaintext, but users can bypass the UI locally.
+- This is a public demo. When enabled, the retained browser-only sign-in modal demonstrates the flow and does **not** protect private data. Use a demo password. Demo passwords are salted and hashed in the browser rather than stored as plaintext, but users can bypass the UI locally.
 - Clearing browser/site storage removes local sales and profiles. CSV export downloads a copy; CSV import is not implemented. **Restore samples** replaces local sales with the original 18 samples.
+
+To restore the demo modal, change `window.BEVSTATS_DEMO_AUTH_ENABLED = false` to `true` in `pitcher-tracker/static-demo.js`, rebuild with `python build_static.py`, and commit the static output. This is a browser-demo switch, not a substitute for backend authentication.
 
 Supabase integration is deferred. It can later provide real authentication and durable shared sales while keeping the frontend statically hosted.
 
