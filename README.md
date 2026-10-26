@@ -59,3 +59,5 @@ Open http://localhost:8000. That mode uses server-side sign-in and SQLite, not t
 cd pitcher-tracker
 python -m unittest -v
 ```
+
+Beer motion is enabled by default, including on phones with a system reduced-motion preference. The Animation: On/Off control stores a browser-local choice and disables both automatic pours and rising bubbles when Off. Replay pour turns motion On. Visibility-triggered pours restart their keyframes instead of resuming a paused animation, and bubbles continue after filling finishes.

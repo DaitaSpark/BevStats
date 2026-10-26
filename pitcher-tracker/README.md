@@ -27,9 +27,9 @@ For free sample-data hosting, follow the demo settings in the [repository README
 
 The UI reads `GET /api/locations`, returning `{locations: [{id, name, cans, goal, updated}], sample}`. Manual saves use `POST /api/locations` with `{locations: [{name, cans, goal}], sample: false}` and replace the entire table transactionally. Future report ingestion should use stable location identifiers, validate delivered status and units, and deduplicate reports before updating totals. Report ingestion is not implemented yet.
 
-External Google Fonts are optional; the page falls back to system fonts when offline. All pitcher graphics are CSS, with no image dependencies. Reduced-motion preferences are respected.
+External Google Fonts are optional; the page falls back to system fonts when offline. All pitcher graphics are CSS, with no image dependencies. Decorative beer motion uses the dashboard's Animation: On/Off preference.
 
-The compact header keeps the pour board near the top of the page. On initial load, nonempty pitchers pour and fill together over about 4.6 seconds. Automatic data refreshes do not replay the pour. Reduced-motion mode shows final levels immediately.
+The compact header keeps the pour board near the top of the page. On initial load, nonempty pitchers pour and fill together over about 4.6 seconds. Automatic data refreshes do not replay the pour. Animation: Off shows final levels immediately.
 
 Locations, rank labels, and CSV exports are ordered by delivered cans, highest first (ties use location name). The saved detail table uses comma-separated numbers; editing uses plain whole-number inputs. No currency statistics are currently tracked.
 
@@ -73,6 +73,8 @@ Top demo/sample banners are removed. Start fresh and Restore samples are availab
 
 The static demo currently bypasses authentication and defaults to Corey. The modal, password handling, prior browser accounts, and backend authentication are retained. Set `window.BEVSTATS_DEMO_AUTH_ENABLED` to `true` in `static-demo.js` and rebuild to restore the demo sign-in flow. Backend authentication remains enabled independently.
 
-Dashboard stats use a native expand/collapse control and start collapsed on every page load. Pour animations wait until their cards enter the viewport, so mobile users see the fill when scrolling down rather than missing it while the controls are onscreen. Automatic animation respects reduced-motion preferences; Replay pour is an explicit request that can play the fill even with reduced motion enabled.
+Dashboard stats use a native expand/collapse control and start collapsed on every page load. Pour animations wait until their cards enter the viewport, so mobile users see the fill when scrolling down rather than missing it while the controls are onscreen. The dashboard motion setting controls decorative beer animation independently of the system motion preference.
 
 Search and filters are also collapsed on initial load. The Pitchers/Table switch stays visible outside the collapsed search section so both views remain accessible.
+
+Beer motion is enabled by default, including on phones with a system reduced-motion preference. The Animation: On/Off control stores a browser-local choice and disables both automatic pours and rising bubbles when Off. Replay pour turns motion On. Visibility-triggered pours restart their keyframes instead of resuming a paused animation, and bubbles continue after filling finishes.
