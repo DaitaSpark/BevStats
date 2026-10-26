@@ -1,5 +1,7 @@
 # Fill the Pitcher
 
+**Current hosting target: Render Static Site.** See [the repository README](../README.md) for the no-startup-delay browser demo. The Python/SQLite instructions below describe the optional backend, not requirements for static hosting.
+
 An unofficial Bud Light delivered-can dashboard for Corey and colleagues. Responsive glass pitchers show each location's delivered cans divided by its goal. Above-goal totals remain visible while the pitcher stops at full.
 
 ## Run
