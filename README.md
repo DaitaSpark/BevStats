@@ -1,6 +1,6 @@
 # BevStats
 
-A Bud Light sample sales dashboard with animated pitcher cards, six locations per desktop row, search, filters, pagination, editable tables, and CSV export.
+A Bud Light sample sales dashboard with animated pitcher cards, six locations per desktop row, collapsible stats (closed by default), search, filters, pagination, editable tables, and CSV export. Pitchers animate when scrolled into view on mobile.
 
 ## Render Static Site: recommended for the current demo
 
