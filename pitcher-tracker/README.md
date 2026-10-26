@@ -29,7 +29,7 @@ The UI reads `GET /api/locations`, returning `{locations: [{id, name, cans, goal
 
 External Google Fonts are optional; the page falls back to system fonts when offline. All pitcher graphics are CSS, with no image dependencies. Reduced-motion preferences are respected.
 
-The compact header keeps the pour board near the top of the page. On initial load, nonempty pitchers pour and fill together over about 2.6 seconds. Automatic data refreshes do not replay the pour. Reduced-motion mode shows final levels immediately.
+The compact header keeps the pour board near the top of the page. On initial load, nonempty pitchers pour and fill together over about 4.6 seconds. Automatic data refreshes do not replay the pour. Reduced-motion mode shows final levels immediately.
 
 Locations, rank labels, and CSV exports are ordered by delivered cans, highest first (ties use location name). The saved detail table uses comma-separated numbers; editing uses plain whole-number inputs. No currency statistics are currently tracked.
 
@@ -67,4 +67,6 @@ Stat labels use larger, bold text. Each pitcher card places its location name an
 
 Set `HOST=0.0.0.0`, `BEVSTATS_DEMO_MODE=1`, `BEVSTATS_LOGIN_USERNAME`, and a secret `BEVSTATS_LOGIN_PASSWORD` of 12?256 characters. Optionally set `BEVSTATS_LOGIN_NAME`. Remove the old `BEVTRACKER_DB=/var/data/sales.sqlite3` setting. No disk is needed. Demo mode refuses startup if credentials are missing or invalid, avoiding an unclaimed public account setup after every reset.
 
-The server restores its 18 sample records and configured account when temporary storage is lost. Sales edits persist only while that temporary filesystem survives. Users see a demo notice. CSV export remains available; restoring a CSV through the UI is not yet supported. This does not provide durable shared storage for real delivery reports.
+The server restores its 18 sample records and configured account when temporary storage is lost. Sales edits persist only while that temporary filesystem survives. The sign-in modal explains demo storage. CSV export remains available; restoring a CSV through the UI is not yet supported. This does not provide durable shared storage for real delivery reports.
+
+Top demo/sample banners are removed. Start fresh and Restore samples are available alongside the detail-table controls. Nonempty pitchers pour together on initial load and when the displayed page changes, with larger continuously rising bubbles. Replay pour restarts the fill on demand, including as an explicit motion request with reduced-motion settings. Unchanged background refreshes preserve the existing pitcher elements instead of interrupting the animation.

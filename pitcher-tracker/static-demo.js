@@ -95,9 +95,7 @@
       return reply(400, {error: blocked ? 'Browser storage is unavailable or full. Enable site storage, or export your data before clearing it.' : error.message});
     }
   };
-  const notice = document.getElementById('demo-notice');
-  notice.innerHTML = '<span><b>Browser demo</b> | Edits and demo profile stay in this browser. Not shared or private.</span><button id="restore-demo" type="button">Restore samples</button>';
-  notice.classList.remove('hidden');
+  document.getElementById('restore-demo').classList.remove('hidden');
   document.getElementById('restore-demo').onclick = async () => {
     if (!confirm('Replace this browser\'s sales table with the 18 sample locations? Export CSV first to keep a copy.')) return;
     try {
