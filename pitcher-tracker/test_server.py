@@ -6,6 +6,7 @@ from pathlib import Path
 import tempfile
 import threading
 import unittest
+from unittest.mock import patch
 import urllib.error
 import urllib.request
 
@@ -94,6 +95,25 @@ class AuthenticationTests(unittest.TestCase):
         for _ in range(10):
             self.assertEqual(self.request('/api/login', {'username': 'unknown', 'password': 'bad'})[0], 401)
         self.assertEqual(self.request('/api/login', {'username': 'unknown', 'password': 'bad'})[0], 429)
+
+    def test_demo_recovers_samples_and_login_after_storage_loss(self):
+        config = {'BEVSTATS_LOGIN_USERNAME': 'demo-user', 'BEVSTATS_LOGIN_PASSWORD': 'demo test password 123', 'BEVSTATS_LOGIN_NAME': 'Demo Viewer'}
+        with patch.object(server, 'DEMO_MODE', True), patch.dict(server.os.environ, config):
+            server.initialize()
+            self.assertFalse(self.request('/api/session')[1]['setup_required'])
+            credentials = {'username': 'demo-user', 'password': config['BEVSTATS_LOGIN_PASSWORD']}
+            self.assertEqual(self.request('/api/login', credentials)[0], 200)
+            self.assertEqual(self.request('/api/locations', {'locations': [], 'sample': False})[0], 200)
+            server.DB.unlink()
+            server.initialize()
+            self.cookies.clear()
+            self.assertEqual(self.request('/api/login', credentials)[0], 200)
+            self.assertEqual(len(self.request('/api/locations')[1]['locations']), 18)
+            self.assertEqual(self.request('/api/session')[1]['user']['display_name'], 'Demo Viewer')
+            self.assertTrue(self.request('/api/session')[1]['demo_mode'])
+            with patch.dict(server.os.environ, {'BEVSTATS_LOGIN_PASSWORD': 'short'}):
+                with self.assertRaises(ValueError):
+                    server.configure_demo_account()
 
 
 if __name__ == '__main__':

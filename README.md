@@ -24,10 +24,17 @@ Create a **Python 3 Web Service** connected to this repository's `main` branch:
 | Start command | `python server.py` |
 | Health check path | `/` |
 | Environment: `HOST` | `0.0.0.0` |
-| Environment: `BEVTRACKER_DB` | `/var/data/sales.sqlite3` |
-| Persistent disk mount | `/var/data` |
+| Environment: `BEVSTATS_DEMO_MODE` | `1` |
+| Environment: `BEVSTATS_LOGIN_USERNAME` | Your chosen username |
+| Environment: `BEVSTATS_LOGIN_PASSWORD` | Your chosen password (12?256 characters) |
+| Environment: `BEVSTATS_LOGIN_NAME` | Your display name (optional) |
+| Instance type | Free |
 
-Use a paid instance with a persistent disk to retain accounts and sales across deployments. Render provides `PORT`. A new hosted database starts with sample data and needs its own first account; local accounts are not pushed to GitHub. Provision the first account before sharing the site.
+**No disk required for the demo.** Remove `BEVTRACKER_DB` if previously set to `/var/data/sales.sqlite3`. Render provides `PORT`. Add the login password as a secret environment value in Render; never put it in Git. Demo mode requires credentials and disables the public first-account setup by provisioning that account at startup.
+
+Demo mode uses a temporary SQLite file. All 18 samples and the configured login return after Render discards the filesystem, but manual edits and browser-created accounts/sessions may be lost on sleep, restart, or redeploy. All visitors share the current server's temporary data. CSV export lets you download a copy; CSV import is not implemented. This mode is for sample-data evaluation.
+
+For durable shared sales and accounts later, use an external database or a paid persistent disk. To use the existing disk option, remove `BEVSTATS_DEMO_MODE`, mount `/var/data`, and set `BEVTRACKER_DB=/var/data/sales.sqlite3`. Local development remains unchanged unless demo mode is explicitly enabled.
 
 ## Checks
 

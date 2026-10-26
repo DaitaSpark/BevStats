@@ -9,13 +9,15 @@ import time
 import threading
 import sys
 import getpass
+import tempfile
 from http.cookies import SimpleCookie
 from contextlib import contextmanager
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
 ROOT = Path(__file__).resolve().parent
-DB = Path(os.environ.get('BEVTRACKER_DB', str(ROOT / 'sales.sqlite3')))
+DEMO_MODE = os.environ.get('BEVSTATS_DEMO_MODE') == '1'
+DB = Path(os.environ.get('BEVTRACKER_DB', str(Path(tempfile.gettempdir()) / 'bevstats-demo.sqlite3' if DEMO_MODE else ROOT / 'sales.sqlite3')))
 
 SAMPLES = [
  ('The Corner Tap',1848,2400,'North','Corey'), ('Lakeside Social',1368,2400,'North','Jordan'),
@@ -33,6 +35,26 @@ AUTH_LOCK = threading.Lock()
 
 def password_hash(password, salt):
     return hashlib.pbkdf2_hmac('sha256', password.encode(), bytes.fromhex(salt), 600000).hex()
+
+def configure_demo_account():
+    """Restore a private demo login after Render discards its temporary disk."""
+    username = os.environ.get('BEVSTATS_LOGIN_USERNAME', '').strip()
+    password = os.environ.get('BEVSTATS_LOGIN_PASSWORD', '')
+    display = os.environ.get('BEVSTATS_LOGIN_NAME', username).strip()
+    if not 1 <= len(username) <= 80 or not 1 <= len(display) <= 80 or not 12 <= len(password) <= 256:
+        raise ValueError('Demo mode requires BEVSTATS_LOGIN_USERNAME and BEVSTATS_LOGIN_PASSWORD (12-256 characters); optional BEVSTATS_LOGIN_NAME must be 1-80 characters.')
+    with connect() as db:
+        user = db.execute('SELECT * FROM users WHERE username=?', (username,)).fetchone()
+        if user and hmac.compare_digest(password_hash(password, user['salt']), user['password_hash']):
+            db.execute('UPDATE users SET display_name=? WHERE id=?', (display, user['id']))
+            return
+        salt = secrets.token_hex(16)
+        hashed = password_hash(password, salt)
+        if user:
+            db.execute('UPDATE users SET display_name=?,salt=?,password_hash=? WHERE id=?', (display, salt, hashed, user['id']))
+            db.execute('DELETE FROM sessions WHERE user_id=?', (user['id'],))
+        else:
+            db.execute('INSERT INTO users(username,display_name,salt,password_hash) VALUES (?,?,?,?)', (username, display, salt, hashed))
 
 def seed_samples():
     with connect() as db:
@@ -67,6 +89,8 @@ def initialize():
         if not db.execute('SELECT 1 FROM settings').fetchone():
             db.execute('INSERT INTO settings VALUES (1,1)')
             db.executemany('INSERT INTO locations(name,cans,goal,region,salesperson) VALUES (?,?,?,?,?)', SAMPLES)
+    if DEMO_MODE:
+        configure_demo_account()
 
 class Handler(BaseHTTPRequestHandler):
     def send(self, status, value, content_type='application/json', cookie=None):
@@ -97,7 +121,7 @@ class Handler(BaseHTTPRequestHandler):
     def auth_state(self):
         with connect() as db:
             setup = not bool(db.execute('SELECT 1 FROM users LIMIT 1').fetchone())
-        return {'user': self.user(), 'setup_required': setup}
+        return {'user': self.user(), 'setup_required': setup, 'demo_mode': DEMO_MODE}
 
     def session_cookie(self, token, age=28800):
         secure = self.headers.get('X-Forwarded-Proto') == 'https'
@@ -198,6 +222,8 @@ class Handler(BaseHTTPRequestHandler):
             self.send(400, {'error': str(exc)})
 
 if __name__ == '__main__':
+    if DEMO_MODE and os.environ.get('BEVTRACKER_DB', '').startswith('/var/data/'):
+        sys.exit('For free demo hosting, remove BEVTRACKER_DB from Render Environment; no mounted disk is required.')
     initialize()
     if '--create-user' in sys.argv:
         username = input('Username: ').strip()

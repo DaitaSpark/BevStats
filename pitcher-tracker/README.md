@@ -19,7 +19,7 @@ Records persist in `sales.sqlite3`, shared by browsers connected to this server.
 
 This is a runnable, deployable Python application; it has not been published. The available Sites workflow requires Node.js, which was unavailable in the development environment. This Python server needs a Python-capable host rather than static-only hosting.
 
-For a hosted deployment, run `python server.py` with `HOST=0.0.0.0`, set `PORT` to the host's assigned port, and set `BEVTRACKER_DB` to a file on a persistent disk. Run one application instance against that disk. Serve behind HTTPS before exposing it outside a trusted network. Sign-in is required for reading or updating sales. All signed-in users can edit; there are no separate viewer/editor roles. Provision the first account locally before exposing a new empty database publicly. At Render, forwarded HTTPS requests receive Secure session cookies. Python's built-in HTTP server is suitable for a local pilot; use a production HTTP reverse proxy for hosting.
+For free sample-data hosting, follow the demo settings in the [repository README](../README.md). For durable storage on a paid hosted deployment, run `python server.py` with `HOST=0.0.0.0`, set `PORT` to the host's assigned port, and set `BEVTRACKER_DB` to a file on a persistent disk. Run one application instance against that disk. Serve behind HTTPS before exposing it outside a trusted network. Sign-in is required for reading or updating sales. All signed-in users can edit; there are no separate viewer/editor roles. Provision the first account locally before exposing a new empty database publicly. At Render, forwarded HTTPS requests receive Secure session cookies. Python's built-in HTTP server is suitable for a local pilot; use a production HTTP reverse proxy for hosting.
 
 ## Future delivered-sales report
 
@@ -60,3 +60,9 @@ Pitcher tiles use six columns at desktop widths of 1,100px and above, displaying
 The desktop header, summary, and filters use compact rows. Pitcher height adapts to viewport height to keep the two-row board visible on typical desktop windows; full location names remain available as tooltips. Browser zoom, unusually short windows, and narrower layouts may still require scrolling.
 
 Stat labels use larger, bold text. Each pitcher card places its location name and region/salesperson above the graphic, with a full-name tooltip. Pitcher graphics are contained within their stage so they do not overlap labels or sales figures.
+
+## Render Free demo mode
+
+Set `HOST=0.0.0.0`, `BEVSTATS_DEMO_MODE=1`, `BEVSTATS_LOGIN_USERNAME`, and a secret `BEVSTATS_LOGIN_PASSWORD` of 12?256 characters. Optionally set `BEVSTATS_LOGIN_NAME`. Remove the old `BEVTRACKER_DB=/var/data/sales.sqlite3` setting. No disk is needed. Demo mode refuses startup if credentials are missing or invalid, avoiding an unclaimed public account setup after every reset.
+
+The server restores its 18 sample records and configured account when temporary storage is lost. Sales edits persist only while that temporary filesystem survives. Users see a demo notice. CSV export remains available; restoring a CSV through the UI is not yet supported. This does not provide durable shared storage for real delivery reports.
