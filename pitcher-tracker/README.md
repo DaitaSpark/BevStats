@@ -74,3 +74,5 @@ Top demo/sample banners are removed. Start fresh and Restore samples are availab
 The static demo currently bypasses authentication and defaults to Corey. The modal, password handling, prior browser accounts, and backend authentication are retained. Set `window.BEVSTATS_DEMO_AUTH_ENABLED` to `true` in `static-demo.js` and rebuild to restore the demo sign-in flow. Backend authentication remains enabled independently.
 
 Dashboard stats use a native expand/collapse control and start collapsed on every page load. Pour animations wait until their cards enter the viewport, so mobile users see the fill when scrolling down rather than missing it while the controls are onscreen. Automatic animation respects reduced-motion preferences; Replay pour is an explicit request that can play the fill even with reduced motion enabled.
+
+Search and filters are also collapsed on initial load. The Pitchers/Table switch stays visible outside the collapsed search section so both views remain accessible.
