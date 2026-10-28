@@ -39,7 +39,7 @@ The browser-tab favicon is a blue square with a gold beer pitcher. Its editable 
 
 Supports up to 1,000 saved locations. Search location names, addresses, and salespeople, and filter by salesperson. Pitcher view displays 12 locations per page and compact table view displays 25. Rankings use overall delivered cans; summary totals always cover all locations. CSV export includes every saved location, address, salesperson, volume change, and beer price. Existing databases gain the new fields automatically on startup without losing records.
 
-Use Edit table to enter addresses, beer prices, and salespeople. Filters pause while editing so you can work through all locations, 25 per page, without edited rows disappearing. Unsaved edits persist when changing pages; Save changes saves all pages together. Coordinate one editor at a time.
+Use Edit table to enter addresses, beer prices, and salespeople. Search by location, address, or salesperson and filter by salesperson, including while editing. Region and goal-status filters are removed. Editing shows 25 matching locations per page; adding a location clears filters so the new row is visible. Unsaved edits persist when changing pages; Save changes saves all pages together, including locations hidden by filters. Coordinate one editor at a time.
 
 ## Accounts and verification
 
