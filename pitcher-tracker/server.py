@@ -4,6 +4,7 @@ import os
 import sqlite3
 import hashlib
 import hmac
+import math
 import secrets
 import time
 import threading
@@ -84,6 +85,9 @@ def initialize():
         for column in ('region', 'salesperson'):
             if column not in columns:
                 db.execute(f"ALTER TABLE locations ADD COLUMN {column} TEXT NOT NULL DEFAULT ''")
+        for column, definition in (('address', "TEXT NOT NULL DEFAULT ''"), ('price', 'REAL'), ('previous_cans', 'INTEGER')):
+            if column not in columns:
+                db.execute(f'ALTER TABLE locations ADD COLUMN {column} {definition}')
         db.execute('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT NOT NULL UNIQUE COLLATE NOCASE, display_name TEXT NOT NULL, salt TEXT NOT NULL, password_hash TEXT NOT NULL)')
         db.execute('CREATE TABLE IF NOT EXISTS sessions (token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, expires REAL NOT NULL)')
         if not db.execute('SELECT 1 FROM settings').fetchone():
@@ -204,18 +208,39 @@ class Handler(BaseHTTPRequestHandler):
                 raise ValueError('Use up to 1,000 locations')
             cleaned = []
             for row in rows:
-                name, cans, goal = row['name'], row['cans'], row['goal']
+                name, cans = row['name'], row['cans']
                 if not isinstance(name, str) or not 1 <= len(name.strip()) <= 80:
                     raise ValueError('Location names must have 1–80 characters')
-                if type(cans) is not int or type(goal) is not int or not 0 <= cans <= 100000000 or not 1 <= goal <= 100000000:
-                    raise ValueError('Cans must be a whole number ≥ 0; goals must be ≥ 1 (maximum 100 million)')
-                region, salesperson = row.get('region', ''), row.get('salesperson', '')
-                if any(not isinstance(v, str) or len(v) > 80 for v in (region, salesperson)):
-                    raise ValueError('Region and salesperson must be text up to 80 characters')
-                cleaned.append((name.strip(), cans, goal, region.strip(), salesperson.strip()))
+                if type(cans) is not int or not 0 <= cans <= 100000000:
+                    raise ValueError('Delivered cans must be a whole number from 0 to 100 million')
+                address, salesperson = row.get('address', ''), row.get('salesperson', '')
+                if any(not isinstance(v, str) or len(v) > 200 for v in (address, salesperson)):
+                    raise ValueError('Address and salesperson must be text up to 200 characters')
+                price = row.get('price')
+                if price is not None and (isinstance(price, bool) or not isinstance(price, (int, float)) or not math.isfinite(price) or not 0 <= price <= 100000):
+                    raise ValueError('Beer price must be between $0 and $100,000')
+                location_id = row.get('id')
+                if location_id is not None and (type(location_id) is not int or location_id < 1):
+                    raise ValueError('Invalid location ID')
+                cleaned.append((location_id, name.strip(), cans, address.strip(), salesperson.strip(), price))
             with connect() as db:
-                db.execute('DELETE FROM locations')
-                db.executemany('INSERT INTO locations(name,cans,goal,region,salesperson) VALUES (?,?,?,?,?)', cleaned)
+                existing = {row['id']: row for row in db.execute('SELECT id,cans FROM locations')}
+                seen = set()
+                for location_id, name, cans, address, salesperson, price in cleaned:
+                    previous = existing.get(location_id) if location_id not in seen else None
+                    if previous:
+                        db.execute('UPDATE locations SET name=?,cans=?,address=?,salesperson=?,price=?,previous_cans=?,updated=CURRENT_TIMESTAMP WHERE id=?',
+                                   (name, cans, address, salesperson, price, previous['cans'], location_id))
+                        seen.add(location_id)
+                    else:
+                        cursor = db.execute('INSERT INTO locations(name,cans,goal,address,salesperson,price,previous_cans) VALUES (?,?,1,?,?,?,NULL)',
+                                            (name, cans, address, salesperson, price))
+                        seen.add(cursor.lastrowid)
+                if seen:
+                    placeholders = ','.join('?' for _ in seen)
+                    db.execute(f'DELETE FROM locations WHERE id NOT IN ({placeholders})', tuple(seen))
+                else:
+                    db.execute('DELETE FROM locations')
                 db.execute('UPDATE settings SET sample=? WHERE id=1', (int(bool(body.get('sample', False))),))
             self.send(200, {'ok': True})
         except (ValueError, KeyError, TypeError, json.JSONDecodeError) as exc:

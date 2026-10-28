@@ -1,4 +1,4 @@
-window.BEVSTATS_SAMPLE_LOCATIONS=[{"name": "The Corner Tap", "cans": 1848, "goal": 2400, "region": "North", "salesperson": "Corey"}, {"name": "Lakeside Social", "cans": 1368, "goal": 2400, "region": "North", "salesperson": "Jordan"}, {"name": "Main Street Grill", "cans": 2184, "goal": 2400, "region": "Central", "salesperson": "Corey"}, {"name": "The Yard", "cans": 864, "goal": 2400, "region": "South", "salesperson": "Alex"}, {"name": "Riverfront Tavern", "cans": 3120, "goal": 3000, "region": "Central", "salesperson": "Jordan"}, {"name": "Oak & Barrel", "cans": 2760, "goal": 2400, "region": "North", "salesperson": "Alex"}, {"name": "Sunset Sports Bar", "cans": 2496, "goal": 3000, "region": "West", "salesperson": "Morgan"}, {"name": "Union House", "cans": 2016, "goal": 2400, "region": "Central", "salesperson": "Corey"}, {"name": "The Blue Anchor", "cans": 1920, "goal": 2400, "region": "East", "salesperson": "Jordan"}, {"name": "Westside Pub", "cans": 1680, "goal": 2400, "region": "West", "salesperson": "Morgan"}, {"name": "Parkside Kitchen", "cans": 1440, "goal": 2400, "region": "South", "salesperson": "Alex"}, {"name": "Station 12", "cans": 1200, "goal": 1800, "region": "East", "salesperson": "Jordan"}, {"name": "The Copper Kettle", "cans": 1080, "goal": 1800, "region": "North", "salesperson": "Corey"}, {"name": "Highway Roadhouse", "cans": 960, "goal": 2400, "region": "West", "salesperson": "Morgan"}, {"name": "Harbor Grill", "cans": 720, "goal": 1800, "region": "East", "salesperson": "Alex"}, {"name": "Southgate Social", "cans": 480, "goal": 1800, "region": "South", "salesperson": "Morgan"}, {"name": "The Dugout", "cans": 240, "goal": 1200, "region": "Central", "salesperson": "Corey"}, {"name": "Prairie House", "cans": 0, "goal": 1200, "region": "West", "salesperson": "Alex"}];
+window.BEVSTATS_SAMPLE_LOCATIONS=[{"name": "The Corner Tap", "cans": 1848, "goal": 2400, "region": "North", "salesperson": "Corey", "address": "", "price": null, "previous_cans": null}, {"name": "Lakeside Social", "cans": 1368, "goal": 2400, "region": "North", "salesperson": "Jordan", "address": "", "price": null, "previous_cans": null}, {"name": "Main Street Grill", "cans": 2184, "goal": 2400, "region": "Central", "salesperson": "Corey", "address": "", "price": null, "previous_cans": null}, {"name": "The Yard", "cans": 864, "goal": 2400, "region": "South", "salesperson": "Alex", "address": "", "price": null, "previous_cans": null}, {"name": "Riverfront Tavern", "cans": 3120, "goal": 3000, "region": "Central", "salesperson": "Jordan", "address": "", "price": null, "previous_cans": null}, {"name": "Oak & Barrel", "cans": 2760, "goal": 2400, "region": "North", "salesperson": "Alex", "address": "", "price": null, "previous_cans": null}, {"name": "Sunset Sports Bar", "cans": 2496, "goal": 3000, "region": "West", "salesperson": "Morgan", "address": "", "price": null, "previous_cans": null}, {"name": "Union House", "cans": 2016, "goal": 2400, "region": "Central", "salesperson": "Corey", "address": "", "price": null, "previous_cans": null}, {"name": "The Blue Anchor", "cans": 1920, "goal": 2400, "region": "East", "salesperson": "Jordan", "address": "", "price": null, "previous_cans": null}, {"name": "Westside Pub", "cans": 1680, "goal": 2400, "region": "West", "salesperson": "Morgan", "address": "", "price": null, "previous_cans": null}, {"name": "Parkside Kitchen", "cans": 1440, "goal": 2400, "region": "South", "salesperson": "Alex", "address": "", "price": null, "previous_cans": null}, {"name": "Station 12", "cans": 1200, "goal": 1800, "region": "East", "salesperson": "Jordan", "address": "", "price": null, "previous_cans": null}, {"name": "The Copper Kettle", "cans": 1080, "goal": 1800, "region": "North", "salesperson": "Corey", "address": "", "price": null, "previous_cans": null}, {"name": "Highway Roadhouse", "cans": 960, "goal": 2400, "region": "West", "salesperson": "Morgan", "address": "", "price": null, "previous_cans": null}, {"name": "Harbor Grill", "cans": 720, "goal": 1800, "region": "East", "salesperson": "Alex", "address": "", "price": null, "previous_cans": null}, {"name": "Southgate Social", "cans": 480, "goal": 1800, "region": "South", "salesperson": "Morgan", "address": "", "price": null, "previous_cans": null}, {"name": "The Dugout", "cans": 240, "goal": 1200, "region": "Central", "salesperson": "Corey", "address": "", "price": null, "previous_cans": null}, {"name": "Prairie House", "cans": 0, "goal": 1200, "region": "West", "salesperson": "Alex", "address": "", "price": null, "previous_cans": null}];
 /* Browser-only adapter for the public sample-data site. This is not access control. */
 (() => {
   'use strict';
@@ -32,16 +32,26 @@ window.BEVSTATS_SAMPLE_LOCATIONS=[{"name": "The Corner Tap", "cans": 1848, "goal
     const bits = await crypto.subtle.deriveBits({name: 'PBKDF2', hash: 'SHA-256', salt: encoder.encode(salt), iterations: 210000}, key, 256);
     return Array.from(new Uint8Array(bits), b => b.toString(16).padStart(2, '0')).join('');
   }
-  function cleanRows(rows) {
+  function cleanRows(rows, previousLocations) {
     if (!Array.isArray(rows) || rows.length > 1000) throw Error('Use up to 1,000 locations.');
-    return rows.map((row, index) => {
+    const previous = previousLocations || [];
+    const previousById = new Map(previous.map(row => [row.id, row]));
+    let nextId = Math.max(0, ...previous.map(row => Number.isInteger(row.id) ? row.id : 0)) + 1;
+    const usedIds = new Set();
+    return rows.map(row => {
       if (!row || typeof row.name !== 'string' || !row.name.trim() || row.name.trim().length > 80) throw Error('Enter a location name of 1-80 characters.');
-      if (!Number.isInteger(row.cans) || !Number.isInteger(row.goal) || row.cans < 0 || row.goal < 1 || row.cans > 100000000 || row.goal > 100000000) throw Error('Enter valid whole-number cans and goals.');
-      for (const key of ['region', 'salesperson']) {
-        if (row[key] !== undefined && (typeof row[key] !== 'string' || row[key].length > 80)) throw Error('Region and salesperson must be text up to 80 characters.');
+      if (!Number.isInteger(row.cans) || row.cans < 0 || row.cans > 100000000) throw Error('Enter a valid whole-number can total.');
+      for (const key of ['address', 'salesperson']) {
+        if (row[key] !== undefined && (typeof row[key] !== 'string' || row[key].length > 200)) throw Error('Address and salesperson must be text up to 200 characters.');
       }
-      return {id: index + 1, name: row.name.trim(), cans: row.cans, goal: row.goal,
-        region: (row.region || '').trim(), salesperson: (row.salesperson || '').trim(),
+      if (row.price !== undefined && row.price !== null && (!Number.isFinite(row.price) || row.price < 0 || row.price > 100000)) throw Error('Beer price must be between $0 and $100,000.');
+      const id = Number.isInteger(row.id) && row.id > 0 ? row.id : nextId++;
+      if (usedIds.has(id)) throw Error('Location IDs must be unique.');
+      usedIds.add(id);
+      const previous = previousById.get(id);
+      return {id, name: row.name.trim(), cans: row.cans,
+        address: (row.address || '').trim(), salesperson: (row.salesperson || '').trim(),
+        price: row.price ?? null, previous_cans: previous ? previous.cans : null,
         updated: new Date().toISOString().slice(0, 19).replace('T', ' ')};
     });
   }
@@ -88,7 +98,8 @@ window.BEVSTATS_SAMPLE_LOCATIONS=[{"name": "The Corner Tap", "cans": 1848, "goal
           return reply(200, data);
         }
         if (method === 'POST') {
-          const data = {locations: cleanRows(body.locations), sample: Boolean(body.sample)};
+          const current = read(localStorage, dataKey, null);
+          const data = {locations: cleanRows(body.locations, current && current.locations), sample: Boolean(body.sample)};
           localStorage.setItem(dataKey, JSON.stringify(data));
           return reply(200, {ok: true});
         }

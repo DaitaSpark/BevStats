@@ -60,8 +60,19 @@ class AuthenticationTests(unittest.TestCase):
         locations = self.request('/api/locations')[1]['locations']
         self.assertEqual(len(locations), 18)
         self.assertTrue(all(r['region'] and r['salesperson'] for r in locations))
-        self.assertTrue(any(r['cans'] >= r['goal'] for r in locations))
-        rows = [{'name': f'Location {i}', 'cans': i*12, 'goal': 2400, 'region': 'North', 'salesperson': 'Corey'} for i in range(400)]
+        target = locations[0]
+        original_cans = target['cans']
+        target.update(cans=original_cans + 12, address='123 Main Street', price=5.5)
+        self.assertEqual(self.request('/api/locations', {'locations': locations, 'sample': True})[0], 200)
+        saved = self.request('/api/locations')[1]['locations']
+        changed = next(row for row in saved if row['id'] == target['id'])
+        self.assertEqual((changed['cans'], changed['previous_cans']), (original_cans + 12, original_cans))
+        self.assertEqual((changed['address'], changed['price']), ('123 Main Street', 5.5))
+        changed['cans'] += 24
+        self.assertEqual(self.request('/api/locations', {'locations': saved, 'sample': True})[0], 200)
+        changed = next(row for row in self.request('/api/locations')[1]['locations'] if row['id'] == target['id'])
+        self.assertEqual((changed['cans'], changed['previous_cans']), (original_cans + 36, original_cans + 12))
+        rows = [{'name': f'Location {i}', 'cans': i*12, 'address': f'{i} Main Street', 'price': 5.5, 'salesperson': 'Corey'} for i in range(400)]
         self.assertEqual(self.request('/api/locations', {'locations': rows, 'sample': False})[0], 200)
         self.assertEqual(len(self.request('/api/locations')[1]['locations']), 400)
         self.assertEqual(self.request('/api/locations', {'locations': []}, {'Origin': 'https://other.example'})[0], 403)

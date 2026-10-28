@@ -31,16 +31,26 @@
     const bits = await crypto.subtle.deriveBits({name: 'PBKDF2', hash: 'SHA-256', salt: encoder.encode(salt), iterations: 210000}, key, 256);
     return Array.from(new Uint8Array(bits), b => b.toString(16).padStart(2, '0')).join('');
   }
-  function cleanRows(rows) {
+  function cleanRows(rows, previousLocations) {
     if (!Array.isArray(rows) || rows.length > 1000) throw Error('Use up to 1,000 locations.');
-    return rows.map((row, index) => {
+    const previous = previousLocations || [];
+    const previousById = new Map(previous.map(row => [row.id, row]));
+    let nextId = Math.max(0, ...previous.map(row => Number.isInteger(row.id) ? row.id : 0)) + 1;
+    const usedIds = new Set();
+    return rows.map(row => {
       if (!row || typeof row.name !== 'string' || !row.name.trim() || row.name.trim().length > 80) throw Error('Enter a location name of 1-80 characters.');
-      if (!Number.isInteger(row.cans) || !Number.isInteger(row.goal) || row.cans < 0 || row.goal < 1 || row.cans > 100000000 || row.goal > 100000000) throw Error('Enter valid whole-number cans and goals.');
-      for (const key of ['region', 'salesperson']) {
-        if (row[key] !== undefined && (typeof row[key] !== 'string' || row[key].length > 80)) throw Error('Region and salesperson must be text up to 80 characters.');
+      if (!Number.isInteger(row.cans) || row.cans < 0 || row.cans > 100000000) throw Error('Enter a valid whole-number can total.');
+      for (const key of ['address', 'salesperson']) {
+        if (row[key] !== undefined && (typeof row[key] !== 'string' || row[key].length > 200)) throw Error('Address and salesperson must be text up to 200 characters.');
       }
-      return {id: index + 1, name: row.name.trim(), cans: row.cans, goal: row.goal,
-        region: (row.region || '').trim(), salesperson: (row.salesperson || '').trim(),
+      if (row.price !== undefined && row.price !== null && (!Number.isFinite(row.price) || row.price < 0 || row.price > 100000)) throw Error('Beer price must be between $0 and $100,000.');
+      const id = Number.isInteger(row.id) && row.id > 0 ? row.id : nextId++;
+      if (usedIds.has(id)) throw Error('Location IDs must be unique.');
+      usedIds.add(id);
+      const previous = previousById.get(id);
+      return {id, name: row.name.trim(), cans: row.cans,
+        address: (row.address || '').trim(), salesperson: (row.salesperson || '').trim(),
+        price: row.price ?? null, previous_cans: previous ? previous.cans : null,
         updated: new Date().toISOString().slice(0, 19).replace('T', ' ')};
     });
   }
@@ -87,7 +97,8 @@
           return reply(200, data);
         }
         if (method === 'POST') {
-          const data = {locations: cleanRows(body.locations), sample: Boolean(body.sample)};
+          const current = read(localStorage, dataKey, null);
+          const data = {locations: cleanRows(body.locations, current && current.locations), sample: Boolean(body.sample)};
           localStorage.setItem(dataKey, JSON.stringify(data));
           return reply(200, {ok: true});
         }

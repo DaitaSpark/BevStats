@@ -2,7 +2,7 @@
 
 **Current hosting target: Render Static Site.** See [the repository README](../README.md) for the no-startup-delay browser demo. The Python/SQLite instructions below describe the optional backend, not requirements for static hosting.
 
-An unofficial Bud Light delivered-can dashboard for Corey and colleagues. Responsive glass pitchers show each location's delivered cans divided by its goal. Above-goal totals remain visible while the pitcher stops at full.
+An unofficial Bud Light delivered-can dashboard for Corey and colleagues. Responsive glass pitchers compare delivered volume across locations and show each location's address, beer price, and change since its previous saved entry.
 
 ## Run
 
@@ -13,7 +13,7 @@ cd C:\Users\jeffe\BevTracker\pitcher-tracker
 python server.py
 ```
 
-Open http://localhost:8000. Keep the terminal running. The first start creates 18 clearly labeled sample locations with sales, goals, regions, and salespeople. The initial modal lets you create the first account; choose a username and password of at least 4 characters. Later visits require sign-in unless an existing session is still valid. **Start fresh** removes sample data. Use **Edit table** to add locations, set goals, and enter cumulative delivered-can totals. Click **Save changes** to update the pitchers. A goal of 2,400 cans is a sample default, not a business rule. Convert cases to cans before entering totals.
+Open http://localhost:8000. Keep the terminal running. The first start creates 18 sample locations with sales and salespeople. The initial modal lets you create the first account; choose a username and password of at least 4 characters. Later visits require sign-in unless an existing session is still valid. **Start fresh** removes sample data. Use **Edit table** to add locations, enter each address and beer price, and update cumulative delivered-can totals. Click **Save changes** to update the pitchers. The volume increase compares the current total with the prior saved total; existing records begin showing a change after their next save. Convert cases to cans before entering totals.
 
 Records persist in `sales.sqlite3`, shared by browsers connected to this server. Other viewers refresh every 30 seconds. Back up that file while the server is stopped. CSV export downloads the saved table. Editing is a full-table save; coordinate one editor at a time to avoid overwriting another person's changes.
 
@@ -25,21 +25,21 @@ For free sample-data hosting, follow the demo settings in the [repository README
 
 ## Future delivered-sales report
 
-The UI reads `GET /api/locations`, returning `{locations: [{id, name, cans, goal, updated}], sample}`. Manual saves use `POST /api/locations` with `{locations: [{name, cans, goal}], sample: false}` and replace the entire table transactionally. Future report ingestion should use stable location identifiers, validate delivered status and units, and deduplicate reports before updating totals. Report ingestion is not implemented yet.
+The UI reads `GET /api/locations`, returning location records with address, beer price, previous delivered-can total, and salesperson fields. Manual saves use `POST /api/locations` with the full location table and replace it transactionally while retaining IDs and recording each prior total. Future report ingestion should validate delivered status and units, and deduplicate reports before updating totals. Report ingestion is not implemented yet.
 
 External Google Fonts are optional; the page falls back to system fonts when offline. All pitcher graphics are CSS, with no image dependencies. Decorative beer motion uses the dashboard's Animation: On/Off preference.
 
 The compact header keeps the pour board near the top of the page. On initial load, nonempty pitchers pour and fill together over about 4.6 seconds. Automatic data refreshes do not replay the pour. Animation: Off shows final levels immediately.
 
-Locations, rank labels, and CSV exports are ordered by delivered cans, highest first (ties use location name). The saved detail table uses comma-separated numbers; editing uses plain whole-number inputs. No currency statistics are currently tracked.
+Locations and rank labels are ordered by delivered cans, highest first (ties use location name). The dashboard summarizes delivered cans, volume increase, locations, and average beer price. Addresses are tucked behind a location-pin button on each pitcher card and can be expanded on demand. Beer prices are optional, editable per location, and exported with address and volume change in the CSV.
 
 The browser-tab favicon is a blue square with a gold beer pitcher. Its editable source is `favicon.svg`; the page embeds it as an SVG data URL so no additional asset request is needed.
 
 ## Browsing a large team
 
-Supports up to 1,000 saved locations. Search location names, regions, and salespeople; combine optional region, salesperson, and goal-status filters. Pitcher view displays 12 locations per page and compact table view displays 25. Rankings use overall delivered cans; summary totals always cover all locations. CSV export includes every saved location and the optional region/salesperson columns. Existing databases gain these columns automatically on startup without losing records.
+Supports up to 1,000 saved locations. Search location names, addresses, and salespeople, and filter by salesperson. Pitcher view displays 12 locations per page and compact table view displays 25. Rankings use overall delivered cans; summary totals always cover all locations. CSV export includes every saved location, address, salesperson, volume change, and beer price. Existing databases gain the new fields automatically on startup without losing records.
 
-Use Edit table to assign regions and salespeople. Filters pause while editing so you can work through all locations, 25 per page, without edited rows disappearing. Unsaved edits persist when changing pages; Save changes saves all pages together. Coordinate one editor at a time.
+Use Edit table to enter addresses, beer prices, and salespeople. Filters pause while editing so you can work through all locations, 25 per page, without edited rows disappearing. Unsaved edits persist when changing pages; Save changes saves all pages together. Coordinate one editor at a time.
 
 ## Accounts and verification
 
@@ -61,7 +61,7 @@ Pitcher tiles use six columns at desktop widths of 1,100px and above, displaying
 
 The desktop header, summary, and filters use compact rows. Pitcher height adapts to viewport height to keep the two-row board visible on typical desktop windows; full location names remain available as tooltips. Browser zoom, unusually short windows, and narrower layouts may still require scrolling.
 
-Stat labels use larger, bold text. Each pitcher card places its location name and region/salesperson above the graphic, with a full-name tooltip. Pitcher graphics are contained within their stage so they do not overlap labels or sales figures.
+Stat labels use larger, bold text. Each pitcher card places its location name and address above the graphic, with a full-name tooltip, and shows beer price and change since the previous entry below it. Pitcher graphics are contained within their stage so they do not overlap labels or sales figures.
 
 ## Render Free demo mode
 
