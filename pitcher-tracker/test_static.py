@@ -21,18 +21,20 @@ class StaticBuildTests(unittest.TestCase):
     def test_committed_static_artifacts_are_current_and_standalone(self):
         with tempfile.TemporaryDirectory() as tmp:
             build_static.build(tmp)
-            expected_files = {'index.html', 'static-demo.js', 'favicon.svg'}
+            expected_files = {'index.html', 'supabase-adapter.js', 'supabase-config.js', 'favicon.svg'}
             self.assertEqual({p.name for p in Path(tmp).iterdir()}, expected_files)
             for name in expected_files:
                 self.assertEqual((Path(tmp) / name).read_bytes(), (build_static.ROOT / 'static' / name).read_bytes(), f'Rebuild static files: {name}')
             page = (Path(tmp) / 'index.html').read_text(encoding='utf-8')
             scripts = Scripts()
             scripts.feed(page)
-            self.assertEqual(scripts.sources, ['./static-demo.js', 'inline'])
+            self.assertEqual(scripts.sources, ['./supabase-config.js', './supabase-adapter.js', 'inline'])
             self.assertNotIn('BEVSTATS_LOGIN_PASSWORD', page)
-            bundle = (Path(tmp) / 'static-demo.js').read_text(encoding='utf-8')
+            bundle = (Path(tmp) / 'supabase-adapter.js').read_text(encoding='utf-8')
             self.assertNotIn('BEVSTATS_LOGIN_PASSWORD', bundle)
-            self.assertEqual(len(build_static.SAMPLES), 18)
+            self.assertNotIn('BEVSTATS_SAMPLE_LOCATIONS', bundle)
+            self.assertNotIn('bevstats.demo.sales', bundle)
+            self.assertNotIn('The Corner Tap', page)
 
 
 if __name__ == '__main__':

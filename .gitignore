@@ -5,3 +5,7 @@
 *.sqlite3-*
 __pycache__/
 .qa/
+
+# Local preview server output
+preview.stdout.log
+preview.stderr.log

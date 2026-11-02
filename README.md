@@ -1,63 +1,33 @@
 # BevStats
 
-A Bud Light sample sales dashboard with animated pitcher cards, six locations per desktop row, collapsible stats and search/filters (both closed by default), pagination, editable tables, and CSV export. Pitchers animate when scrolled into view on mobile.
+Shared Supabase dashboard for 22 restaurants. Display units are case equivalents, comparing October 1-29, 2026 against October 1-29, 2025. Duplicate Bud Light detail rows are excluded. Source changes and percentages are preserved exactly, including source rounding differences. Anyone can view without signing in. Only the configured owner may insert or update database rows; owner editing and daily import UI remain pending.
 
-## Render Static Site: recommended for the current demo
+## Database setup
 
-This version serves static files with no Python process or sleeping web service. The pitcher graphics, animations, and dashboard UI use the same source as the Python version.
+The supplied URL and publishable key are configured in `pitcher-tracker/supabase-public.json`. They are public browser configuration, not database administration credentials. The schema, initial import, and owner assignment have been applied. Local browser checks verified public access to all 22 restaurants from the real database.
 
-Create **New > Static Site** in Render and connect `DaitaSpark/BevStats`:
+Using the Supabase integration or project SQL editor:
 
-| Setting | Value |
-| --- | --- |
-| Branch | `main` |
-| Root directory | `pitcher-tracker` |
-| Build command | `echo "BevStats static site ready"` |
-| Publish directory | `static` |
+1. Run `pitcher-tracker/supabase/schema.sql` once to create tables, public read policies, owner-only insert/update policies, and the dashboard view. Existing objects are not deleted. Owner assignment is protected from browser changes. Browser roles have no sales delete permission.
+2. Run `pitcher-tracker/supabase/initial-import.sql` to load the 22 restaurant rows. This atomic import can be reapplied without duplicating report/location rows. Exact source values are also saved in `supabase/first-report.json`.
+3. Create and confirm `jeff.eckard@daitaspark.com` in Supabase Auth. Run `pitcher-tracker/supabase/assign-admin.sql` to bind that confirmed Auth user to the sole owner record. Typing the email in the app does not grant permissions.
+4. Disable public signups. Allow `http://localhost:8001/` and your deployed site URL in Supabase Auth redirect URLs. Configure email delivery for the admin address and keep the default magic-link email template. The Admin button requests a link for the existing account without creating a new account. The callback verifies the Auth identity and checks database ownership. Authentication tokens are removed from the callback URL and stored in session storage.
+5. Verify public reads, denied non-owner writes, successful owner insert/update, and denied ownership changes against the live project. Local mocked browser checks do not verify deployed database policies.
 
-There is **no start command**, disk, database, or required environment variable. Do not copy login-password environment variables into static frontend assets. The publish directory is prebuilt and committed, so Render does not need Python or any packages to build it. Use the new Static Site URL; the old Web Service URL still has its wake-up behavior. If using a custom domain, move it to the Static Site when ready.
+## Local preview
 
-### What is saved
-
-- A new browser opens directly with all 18 sample locations as **Corey**, without a login modal or sign-out button. Authentication is temporarily bypassed; its code and existing browser profiles are retained.
-- Sales edits and one demo profile are saved in that browser's local storage and survive page reloads and redeploys at the same origin.
-- The retained sign-in flow uses a username and minimum four-character demo password, with eight-hour sessions. It is currently disabled; no profile or password is required.
-- Data and profiles are **not shared across devices, browsers, domains, or colleagues**. Everyone begins with their own sample data. Profiles on different devices can have different names and passwords.
-- This is a public demo. When enabled, the retained browser-only sign-in modal demonstrates the flow and does **not** protect private data. Use a demo password. Demo passwords are salted and hashed in the browser rather than stored as plaintext, but users can bypass the UI locally.
-- Clearing browser/site storage removes local sales and profiles. CSV export downloads a copy; CSV import is not implemented. **Restore samples** replaces local sales with the original 18 samples.
-
-To restore the demo modal, change `window.BEVSTATS_DEMO_AUTH_ENABLED = false` to `true` in `pitcher-tracker/static-demo.js`, rebuild with `python build_static.py`, and commit the static output. This is a browser-demo switch, not a substitute for backend authentication.
-
-Supabase integration is deferred. It can later provide real authentication and durable shared sales while keeping the frontend statically hosted.
-
-## Local static preview
-
-Requires Python only to serve files locally, not on Render:
-
-```sh
+```powershell
 cd pitcher-tracker
 python build_static.py
 python -m http.server 8001 --directory static --bind 127.0.0.1
 ```
 
-Open http://localhost:8001. Use localhost or HTTPS for browser password hashing. After any dashboard, adapter, favicon, or sample-data change, run `python build_static.py` and commit the regenerated files under `static/`.
+Open http://localhost:8001. The dashboard has no sample-data fallback and ignores old browser-local demo sales. Until the schema/import are applied, it displays the database error. Report totals are read-only in the current dashboard. CSV export, search, filtering, pagination, and pitcher animations remain available. The latest report is selected by current-period end date, load time, then ID.
 
-## Optional Python backend
+`SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` build environment variables override the checked-in public configuration. Never use a secret or service-role key in browser assets. On Render Static Site use root `pitcher-tracker`, build command `python build_static.py`, and publish directory `static`. The previous echo-only build command does not regenerate configuration.
 
-The original server remains available for local development or later backend work:
+## Checks and legacy backend
 
-```sh
-cd pitcher-tracker
-python server.py
-```
+Run `python -m unittest -v` from `pitcher-tracker`. Build/import tests require no third-party packages. Live authentication, email delivery, database import, and row-level security still need verification after connecting the project.
 
-Open http://localhost:8000. That mode uses server-side sign-in and SQLite, not the browser-only adapter. Its existing sales and accounts are untouched. See [the app guide](pitcher-tracker/README.md) for backend accounts and the previous Web Service deployment options.
-
-## Checks
-
-```sh
-cd pitcher-tracker
-python -m unittest -v
-```
-
-Beer motion is enabled by default, including on phones with a system reduced-motion preference. The Animation: On/Off control stores a browser-local choice and disables both automatic pours and rising bubbles when Off. Replay pour turns motion On. Visibility-triggered pours restart their keyframes instead of resuming a paused animation, and bubbles continue after filling finishes.
+`server.py` and its SQLite tests are legacy backend code. Their sample fixtures are not shipped in the Supabase build. Use the static preview above for the real dashboard.
