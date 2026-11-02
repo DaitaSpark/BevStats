@@ -90,7 +90,8 @@
           rows.push(...page);
           if (page.length < 1000) break;
         }
-        return reply(200, {sample:false,report,locations:rows.map(r=>({...r,cans:r.current_case_equivalents,previous_cans:r.prior_case_equivalents,price:r.beer_price,updated:r.loaded_at}))});
+        if (rows.some(r=>!Object.hasOwn(r,'current_beers'))) return reply(503, {error:'Apply convert-to-beers.sql in Supabase before using the Beers dashboard.'});
+        return reply(200, {sample:false,report,locations:rows.map(r=>({...r,cans:r.current_beers,previous_cans:r.prior_beers,reported_change:r.reported_change_beers,price:r.beer_price,updated:r.loaded_at}))});
       }
       return reply(405, {error:'Report data is read-only in the dashboard. Load reports through the database import.'});
     } catch (error) { return reply(error.status || 503, {error:error.message || 'Unable to connect to Supabase'}); }

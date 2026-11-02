@@ -1,6 +1,6 @@
 # BevStats
 
-Shared Supabase dashboard for 22 restaurants. Display units are case equivalents, comparing October 1-29, 2026 against October 1-29, 2025. Duplicate Bud Light detail rows are excluded. Source changes and percentages are preserved exactly, including source rounding differences. Anyone can view without signing in. Only the configured owner may insert or update database rows; owner editing and daily import UI remain pending.
+Shared Supabase dashboard for 22 restaurants. Display units are Beers (24 per source case equivalent), comparing October 1-29, 2026 against October 1-29, 2025. Duplicate Bud Light detail rows are excluded. Source changes and percentages are preserved exactly, including source rounding differences. Anyone can view without signing in. Only the configured owner may insert or update database rows; owner editing and daily import UI remain pending.
 
 ## Database setup
 
@@ -31,3 +31,11 @@ Open http://localhost:8001. The dashboard has no sample-data fallback and ignore
 Run `python -m unittest -v` from `pitcher-tracker`. Build/import tests require no third-party packages. Live authentication, email delivery, database import, and row-level security still need verification after connecting the project.
 
 `server.py` and its SQLite tests are legacy backend code. Their sample fixtures are not shipped in the Supabase build. Use the static preview above for the real dashboard.
+
+## Converting the existing database to Beers
+
+Run `pitcher-tracker/supabase/convert-to-beers.sql` in the Supabase SQL Editor before deploying the new dashboard. It transactionally renames the stored volume columns to `prior_beers`, `current_beers`, and `reported_change_beers`, multiplies them by 24, and leaves percentages and beer prices unchanged. A column-existence guard prevents repeat conversion; the whole migration rolls back on error. Existing row IDs, permissions and owner assignment are preserved. Do not rerun schema.sql on an existing database.
+
+The dashboard reads the new beer values directly; it does not multiply browser values. The view retains old case-equivalent API fields for the previous app during rollout. The regenerated initial import also writes beers, so reimporting the original source does not change units back. Keep first-report.json as the original source in case equivalents. Fractional results are retained to two decimal places: no rounding to whole beers was requested.
+
+For the initial 22-location report, the conversion verification query should return current beers **12,070.32** and prior beers **16,037.28**. Wild Wing current volume becomes **1,488.00 Beers**, with reported change **165.36 Beers** and unchanged **12.50%**. The migration has been applied and all 22 live rows verified against the source: all three volume fields equal the originals multiplied by 24, with percentages unchanged.
