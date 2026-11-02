@@ -25,7 +25,7 @@ def build(output=None):
     assert html.count('<script>') == 1
     html = html.replace('<script>', '<script src="./supabase-config.js"></script>\n<script src="./supabase-adapter.js"></script>\n<script>', 1)
     (output / 'index.html').write_text(html, encoding='utf-8')
-    (output / 'supabase-config.js').write_text('window.BEVSTATS_SUPABASE=' + json.dumps({'url':url,'publishableKey':key,'adminEmail':public['adminEmail']}) + ';\n', encoding='utf-8')
+    (output / 'supabase-config.js').write_text('window.BEVSTATS_SUPABASE=' + json.dumps({'url':url,'publishableKey':key,'editorEmails':public['editorEmails']}) + ';\n', encoding='utf-8')
     for name in ('supabase-adapter.js','favicon.svg'):
         (output / name).write_bytes((ROOT / name).read_bytes())
     obsolete = output / 'static-demo.js'

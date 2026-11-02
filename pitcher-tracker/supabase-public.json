@@ -1,5 +1,9 @@
 {
   "url": "https://ldncejfgiaennwomttav.supabase.co",
   "publishableKey": "sb_publishable_vnMLjygPn1_mhZFqlWC5kg_aUs2TwOx",
-  "adminEmail": "jeff.eckard@daitaspark.com"
+  "adminEmail": "jeff.eckard@daitaspark.com",
+  "editorEmails": [
+    "jeff.eckard@daitaspark.com",
+    "corey.eckard@eaglerocks.com"
+  ]
 }

@@ -1,1 +1,1 @@
-window.BEVSTATS_SUPABASE={"url": "https://ldncejfgiaennwomttav.supabase.co", "publishableKey": "sb_publishable_vnMLjygPn1_mhZFqlWC5kg_aUs2TwOx", "adminEmail": "jeff.eckard@daitaspark.com"};
+window.BEVSTATS_SUPABASE={"url": "https://ldncejfgiaennwomttav.supabase.co", "publishableKey": "sb_publishable_vnMLjygPn1_mhZFqlWC5kg_aUs2TwOx", "editorEmails": ["jeff.eckard@daitaspark.com", "corey.eckard@eaglerocks.com"]};
