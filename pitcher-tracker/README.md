@@ -9,3 +9,5 @@ The tables, initial report, and admin assignment are configured in Supabase; the
 For the Beers update, run `supabase/convert-to-beers.sql` on the existing database before deployment. Stored volumes are multiplied by 24 exactly once; percentage changes and prices stay unchanged. See the repository guide for rollout details.
 
 Location tiles and the detail table show current Beers totals and percentage-only comparisons against the report's prior-year period. Prior-year counts and count differences remain stored and available in CSV export, but are hidden in these location views. This comparison is not against a previous daily upload.
+
+Displayed percentage comparisons round to whole percentages in tiles and the table (for example, 12.50% displays as +13%). Database values and CSV export retain their original precision.
