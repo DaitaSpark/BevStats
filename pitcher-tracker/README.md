@@ -11,3 +11,5 @@ For the Beers update, run `supabase/convert-to-beers.sql` on the existing databa
 Location tiles and the detail table show current Beers totals and percentage-only comparisons against the report's prior-year period. Prior-year counts and count differences remain stored and available in CSV export, but are hidden in these location views. This comparison is not against a previous daily upload.
 
 Displayed percentage comparisons round to whole percentages in tiles and the table (for example, 12.50% displays as +13%). Database values and CSV export retain their original precision.
+
+Use Total Beers / % change above the board to sort tiles descending by current report volume or the source percentage change. Total Beers is the default. Percentage ties sort by Beers, then location name; missing percentages appear last. Switching sort resets the tile page and updates ranks and address disclosures. The table and CSV keep their total-Beers order.
