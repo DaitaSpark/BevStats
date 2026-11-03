@@ -103,7 +103,7 @@
         if (session?.password_recovery) return reply(403,{error:'Set your password before editing the report.'});
         if (!await isOwner()) return reply(403, {error:'Sign in as Jeff or Corey to edit.'});
         if (!Number.isSafeInteger(body.report_id) || !Array.isArray(body.changes) || body.changes.length>1000) return reply(400, {error:'Invalid report edits.'});
-        const result = await request('/rest/v1/rpc/bevstats_save_edits', {method:'POST',body:JSON.stringify({p_report_id:body.report_id,p_changes:body.changes})},session.access_token);
+        const result = await request('/rest/v1/rpc/bevstats_save_baseline_edits', {method:'POST',body:JSON.stringify({p_report_id:body.report_id,p_changes:body.changes})},session.access_token);
         return reply(200, result);
       }
       if (path === '/api/locations' && method === 'GET') {
@@ -117,8 +117,8 @@
           rows.push(...page);
           if (page.length < 1000) break;
         }
-        if (rows.some(r=>!Object.hasOwn(r,'current_beers'))) return reply(503, {error:'Apply convert-to-beers.sql in Supabase before using the Beers dashboard.'});
-        return reply(200, {sample:false,report,locations:rows.map(r=>({...r,cans:r.current_beers,previous_cans:r.prior_beers,reported_change:r.reported_change_beers,price:r.beer_price,updated:r.loaded_at}))});
+        if (rows.some(r=>!Object.hasOwn(r,'baseline_beers'))) return reply(503, {error:'Apply set-october-2026-baseline.sql in Supabase before using the October baseline dashboard.'});
+        return reply(200, {sample:false,report,locations:rows.map(r=>({...r,cans:r.current_beers,previous_cans:r.baseline_beers,reported_change:r.baseline_change_beers,reported_percent:r.baseline_percent,price:r.beer_price,updated:r.loaded_at}))});
       }
       return reply(405, {error:'Unsupported request.'});
     } catch (error) { return reply(error.status || 503, {error:error.message || 'Unable to connect to Supabase'}); }

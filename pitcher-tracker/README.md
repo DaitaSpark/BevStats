@@ -19,3 +19,11 @@ Use Total Beers / % change above the board to sort tiles descending by current r
 Run `supabase/enable-table-editing.sql` in Supabase SQL Editor once before using this update. Ensure both authorized emails exist as confirmed Supabase Auth users with individual passwords. Admin sign-in does not send email or redirect to a verification link. Everyone else continues to view without signing in. Use Edit table ? Save changes for location/address, current/prior Beers, and percentage corrections. Save is atomic and detects concurrent changes. No sales data is changed by the permission migration itself.
 
 For an existing account without a password, use Admin ? enter email ? Set / reset password. Open the recovery email link and choose/confirm a password in the app. Locally, allow http://localhost:8001/ in Supabase Auth redirect URLs first. No account deletion or new SQL is needed. Routine sign-in still uses email/password.
+
+## October 2026 baseline
+
+For this update, run `supabase/set-october-2026-baseline.sql` in Supabase SQL Editor. It fixes the comparison to the October 1-29, 2026 current-data column. New report values compare with that snapshot; baseline amounts are read-only in the editor. Original 2025 report values remain stored. The migration must run before deploying this version.
+
+Current Beers totals show a small CE value underneath (Beers divided by 24). Percentage displays remain whole numbers. The October report starts at 0% against itself. Future imports must retain location IDs to match the correct baseline.
+
+November starts as a separate report with blank database totals, displayed as 0.00 Beers / 0.00 CE and Awaiting November data. October retains its real baseline totals. Entering zero explicitly is a reported result, not an awaiting state. Rerun the baseline SQL if its earlier version was applied; existing baseline and November values are preserved.
