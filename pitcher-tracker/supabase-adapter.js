@@ -25,6 +25,7 @@
       if (response.status === 401) store(null);
       const error = Error(data?.msg || data?.message || data?.error_description || 'Database request failed');
       error.status = response.status;
+      error.code = data?.code;
       throw error;
     }
     return data;
@@ -107,7 +108,13 @@
         return reply(200, result);
       }
       if (path === '/api/locations' && method === 'GET') {
-        const reports = await request('/rest/v1/bevstats_reports?select=*&order=current_end.desc,loaded_at.desc,id.desc&limit=1', {});
+        let reports;
+        try {
+          reports = await request('/rest/v1/bevstats_reports?select=*&order=as_of_date.desc.nullslast,current_end.desc,loaded_at.desc,id.desc&limit=1', {});
+        } catch (error) {
+          if (!['42703','PGRST204'].includes(error.code)) throw error;
+          reports = await request('/rest/v1/bevstats_reports?select=*&order=current_end.desc,loaded_at.desc,id.desc&limit=1', {});
+        }
         if (!reports.length) return reply(200, {locations:[],sample:false,report:null});
         const report = reports[0];
         const rows = [];
