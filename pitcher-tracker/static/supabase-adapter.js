@@ -116,7 +116,18 @@
           reports = await request('/rest/v1/bevstats_reports?select=*&order=current_end.desc,loaded_at.desc,id.desc&limit=1', {});
         }
         if (!reports.length) return reply(200, {locations:[],sample:false,report:null});
-        const report = reports[0];
+        let sync = null;
+        try {
+          const status = await request('/rest/v1/bevstats_sync_status?select=*&id=eq.true', {});
+          sync = status[0] || null;
+        } catch (error) {
+          if (!['42P01','PGRST205'].includes(error.code)) throw error;
+        }
+        if (sync?.report_id && sync.report_id !== reports[0].id) {
+          reports = await request('/rest/v1/bevstats_reports?select=*&id=eq.' + sync.report_id, {});
+          if (!reports.length) throw new Error('Synced report not found');
+        }
+        const report = {...reports[0], sync};
         const rows = [];
         // Supabase may cap responses at 1,000 rows. Page explicitly.
         for (let offset=0; ; offset+=1000) {

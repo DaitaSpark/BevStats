@@ -1,0 +1,136 @@
+{
+  "prior_start": "2026-10-01",
+  "prior_end": "2026-10-07",
+  "current_start": "2026-11-01",
+  "current_end": "2026-11-07",
+  "rows": [
+    {
+      "name": "Wild Wing Cafe - Hamilton Mill",
+      "address": "3517 Braselton Highway, Dacula, GA 30019",
+      "prior_case_equivalents": "27.56",
+      "current_case_equivalents": "0.00",
+      "reported_change": "-27.56",
+      "reported_percent": "-100.00"
+    },
+    {
+      "name": "Johnny's Pizza - Hickory Flat",
+      "address": "6124 Hickory Flat Highway, Canton, GA 30115",
+      "prior_case_equivalents": "20.67",
+      "current_case_equivalents": "0.00",
+      "reported_change": "-20.67",
+      "reported_percent": "-100.00"
+    },
+    {
+      "name": "Dillon's",
+      "address": "850 Dogwood Rd., Lawrenceville, GA 30044",
+      "prior_case_equivalents": "20.67",
+      "current_case_equivalents": "0.00",
+      "reported_change": "-20.67",
+      "reported_percent": "-100.00"
+    },
+    {
+      "name": "Will Henry's",
+      "address": "1228 Rockbridge Rd., Stone Mountain, GA 30087",
+      "prior_case_equivalents": "13.78",
+      "current_case_equivalents": "0.00",
+      "reported_change": "-13.78",
+      "reported_percent": "-100.00"
+    },
+    {
+      "name": "The Oyster Pub - Dalton",
+      "address": "933 MARKET ST, Dalton, GA 30720",
+      "prior_case_equivalents": "13.78",
+      "current_case_equivalents": "0.00",
+      "reported_change": "-13.78",
+      "reported_percent": "-100.00"
+    },
+    {
+      "name": "The Bat And Ball Pub",
+      "address": "2150-B Johnson Ferry Rd, Atlanta, GA 30319",
+      "prior_case_equivalents": "6.89",
+      "current_case_equivalents": "6.89",
+      "reported_change": "0.00",
+      "reported_percent": "0.00"
+    },
+    {
+      "name": "Rocco's Pub",
+      "address": "47 Mountainside Village, Jasper, GA 30143",
+      "prior_case_equivalents": "13.78",
+      "current_case_equivalents": "0.00",
+      "reported_change": "-13.78",
+      "reported_percent": "-100.00"
+    },
+    {
+      "name": "Mazzy's Sports Bar & Grill - Duluth",
+      "address": "3855 Venture Drive, Duluth, GA 30096",
+      "prior_case_equivalents": "6.89",
+      "current_case_equivalents": "6.89",
+      "reported_change": "0.00",
+      "reported_percent": "0.00"
+    },
+    {
+      "name": "Jimmy's Tequila & Carnes Mexican Steak Seafood",
+      "address": "6365 Peachtree Industrial Blvd, Doraville, GA 30360",
+      "prior_case_equivalents": "13.78",
+      "current_case_equivalents": "0.00",
+      "reported_change": "-13.78",
+      "reported_percent": "-100.00"
+    },
+    {
+      "name": "Hammerheads Seafood & Sports",
+      "address": "415 Peachtree Indus Blvd, Suwanee, GA 30024",
+      "prior_case_equivalents": "13.78",
+      "current_case_equivalents": "0.00",
+      "reported_change": "-13.78",
+      "reported_percent": "-100.00"
+    },
+    {
+      "name": "Dave & Buster's - Sugarloaf",
+      "address": "5900 Sugarloaf Pkwy, Lawrenceville, GA 30043",
+      "prior_case_equivalents": "13.78",
+      "current_case_equivalents": "0.00",
+      "reported_change": "-13.78",
+      "reported_percent": "-100.00"
+    },
+    {
+      "name": "Sidelines Grille Jasper",
+      "address": "800 Noah drive, Jasper, GA 30143",
+      "prior_case_equivalents": "0.00",
+      "current_case_equivalents": "6.89",
+      "reported_change": "6.89",
+      "reported_percent": "100.00"
+    },
+    {
+      "name": "Modern Sports Restaurant",
+      "address": "203 S Tennessee St, Cartersville, GA 30120",
+      "prior_case_equivalents": "6.89",
+      "current_case_equivalents": "0.00",
+      "reported_change": "-6.89",
+      "reported_percent": "-100.00"
+    },
+    {
+      "name": "Local 7",
+      "address": "2316 Main Street, Tucker, GA 30084",
+      "prior_case_equivalents": "6.89",
+      "current_case_equivalents": "0.00",
+      "reported_change": "-6.89",
+      "reported_percent": "-100.00"
+    },
+    {
+      "name": "Hooligans",
+      "address": "8440 Holcomb Bridge Rd, Roswell, GA 30022",
+      "prior_case_equivalents": "6.89",
+      "current_case_equivalents": "0.00",
+      "reported_change": "-6.89",
+      "reported_percent": "-100.00"
+    },
+    {
+      "name": "Big Shots Billiards",
+      "address": "101 Emma Lane, Woodstock, GA 30189",
+      "prior_case_equivalents": "0.00",
+      "current_case_equivalents": "6.89",
+      "reported_change": "6.89",
+      "reported_percent": "100.00"
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+-- CORRECTED LOAD: October 1-7, 2026 baseline; November 1-7, 2026 actual data.
+-- Excludes Total and Bud Light rows. CE volumes are converted to Beers once.
+-- Requires the existing tables/Beers columns and enable-table-editing.sql.
+-- Replaces ALL restaurant/report/baseline data. Keeps Auth accounts and editor permissions.
+begin;
+create table if not exists public.bevstats_baselines (
+ location_id bigint primary key references public.bevstats_locations(id),
+ source_report_id bigint not null references public.bevstats_reports(id),
+ baseline_start date not null,
+ baseline_end date not null,
+ baseline_beers numeric(16,2) check (baseline_beers>=0)
+);
+alter table public.bevstats_baselines enable row level security;
+revoke all on public.bevstats_baselines from anon,authenticated;
+grant select on public.bevstats_baselines to anon,authenticated;
+drop policy if exists public_read_baselines on public.bevstats_baselines;
+create policy public_read_baselines on public.bevstats_baselines for select to anon,authenticated using(true);
+truncate table public.bevstats_baselines,public.bevstats_report_totals,
+ public.bevstats_reports,public.bevstats_locations restart identity;
+do $load$
+declare rec record; loaded_report_id bigint; loaded_location_id bigint;
+begin
+ insert into public.bevstats_reports(prior_start,prior_end,current_start,current_end)
+ values('2026-10-01','2026-10-07','2026-11-01','2026-11-07') returning id into loaded_report_id;
+ for rec in select * from (values
+('Wild Wing Cafe - Hamilton Mill','3517 Braselton Highway, Dacula, GA 30019',27.56,0.00,-27.56,-100.00),
+('Johnny''s Pizza - Hickory Flat','6124 Hickory Flat Highway, Canton, GA 30115',20.67,0.00,-20.67,-100.00),
+('Dillon''s','850 Dogwood Rd., Lawrenceville, GA 30044',20.67,0.00,-20.67,-100.00),
+('Will Henry''s','1228 Rockbridge Rd., Stone Mountain, GA 30087',13.78,0.00,-13.78,-100.00),
+('The Oyster Pub - Dalton','933 MARKET ST, Dalton, GA 30720',13.78,0.00,-13.78,-100.00),
+('The Bat And Ball Pub','2150-B Johnson Ferry Rd, Atlanta, GA 30319',6.89,6.89,0.00,0.00),
+('Rocco''s Pub','47 Mountainside Village, Jasper, GA 30143',13.78,0.00,-13.78,-100.00),
+('Mazzy''s Sports Bar & Grill - Duluth','3855 Venture Drive, Duluth, GA 30096',6.89,6.89,0.00,0.00),
+('Jimmy''s Tequila & Carnes Mexican Steak Seafood','6365 Peachtree Industrial Blvd, Doraville, GA 30360',13.78,0.00,-13.78,-100.00),
+('Hammerheads Seafood & Sports','415 Peachtree Indus Blvd, Suwanee, GA 30024',13.78,0.00,-13.78,-100.00),
+('Dave & Buster''s - Sugarloaf','5900 Sugarloaf Pkwy, Lawrenceville, GA 30043',13.78,0.00,-13.78,-100.00),
+('Sidelines Grille Jasper','800 Noah drive, Jasper, GA 30143',0.00,6.89,6.89,100.00),
+('Modern Sports Restaurant','203 S Tennessee St, Cartersville, GA 30120',6.89,0.00,-6.89,-100.00),
+('Local 7','2316 Main Street, Tucker, GA 30084',6.89,0.00,-6.89,-100.00),
+('Hooligans','8440 Holcomb Bridge Rd, Roswell, GA 30022',6.89,0.00,-6.89,-100.00),
+('Big Shots Billiards','101 Emma Lane, Woodstock, GA 30189',0.00,6.89,6.89,100.00)
+ ) as source(name,address,october_ce,november_ce,change_ce,percent_change)
+ loop
+  insert into public.bevstats_locations(name,address)
+  values(rec.name,rec.address) returning id into loaded_location_id;
+  insert into public.bevstats_report_totals(report_id,location_id,prior_beers,current_beers,reported_change_beers,reported_percent)
+  values(loaded_report_id,loaded_location_id,rec.october_ce*24,rec.november_ce*24,rec.change_ce*24,rec.percent_change);
+  insert into public.bevstats_baselines(location_id,source_report_id,baseline_start,baseline_end,baseline_beers)
+  values(loaded_location_id,loaded_report_id,'2026-10-01','2026-10-07',rec.october_ce*24);
+ end loop;
+end $load$;
+create or replace view public.bevstats_dashboard with (security_invoker=true) as
+select l.id,l.name,l.address,l.salesperson,l.beer_price,
+ (t.prior_beers/24)::numeric(14,2) as prior_case_equivalents,
+ (t.current_beers/24)::numeric(14,2) as current_case_equivalents,
+ (t.reported_change_beers/24)::numeric(14,2) as reported_change,t.reported_percent,
+ r.id as report_id,r.prior_start,r.prior_end,r.current_start,r.current_end,r.loaded_at,
+ t.prior_beers,t.current_beers,t.reported_change_beers,
+ b.baseline_beers,b.baseline_start,b.baseline_end,
+ t.current_beers-b.baseline_beers as baseline_change_beers,
+ case when b.baseline_beers>0 then round((t.current_beers-b.baseline_beers)*100/b.baseline_beers,2)
+      when b.baseline_beers=0 and t.current_beers=0 then 0::numeric
+      when b.baseline_beers=0 and t.current_beers>0 then 100::numeric else null::numeric end as baseline_percent
+from public.bevstats_report_totals t join public.bevstats_locations l on l.id=t.location_id
+join public.bevstats_reports r on r.id=t.report_id
+left join public.bevstats_baselines b on b.location_id=t.location_id;
+create or replace function public.bevstats_save_baseline_edits(p_report_id bigint,p_changes jsonb)
+returns jsonb language plpgsql security invoker set search_path='' as $$
+declare item jsonb; old_row record; new_current numeric; changed_count integer:=0;
+begin
+ if not public.bevstats_can_edit() then raise exception 'Only Jeff and Corey can edit this report.' using errcode='42501'; end if;
+ if jsonb_typeof(p_changes) is distinct from 'array' or jsonb_array_length(p_changes)>1000 then raise exception 'Invalid edit list'; end if;
+ if exists(select 1 from jsonb_array_elements(p_changes) x group by x->>'id' having count(*)>1) then raise exception 'Duplicate location edits'; end if;
+ for item in select value from jsonb_array_elements(p_changes) order by (value->>'id')::bigint loop
+  if jsonb_typeof(item->'name') is distinct from 'string' or length(trim(item->>'name')) not between 1 and 200
+    or jsonb_typeof(item->'address') is distinct from 'string' or length(item->>'address')>200 then raise exception 'Enter a valid name and address'; end if;
+  if coalesce(jsonb_typeof(item->'cans'),'missing') not in ('number','null') then raise exception 'Enter valid Beers'; end if;
+  new_current:=(item->>'cans')::numeric;
+  if new_current<0 or new_current>10000000000 or new_current<>round(new_current,2) then raise exception 'Beers must be nonnegative with at most two decimals'; end if;
+  select l.name,l.address,t.current_beers into old_row
+   from public.bevstats_locations l join public.bevstats_report_totals t on t.location_id=l.id
+   where t.report_id=p_report_id and l.id=(item->>'id')::bigint for update of l,t;
+  if not found then raise exception 'Report location no longer exists. Reload and retry.'; end if;
+  if old_row.name is distinct from (item->'original'->>'name')
+    or old_row.address is distinct from (item->'original'->>'address')
+    or old_row.current_beers is distinct from (item->'original'->>'cans')::numeric then
+    raise exception 'Another editor changed this location. Cancel and reload before saving.' using errcode='40001';
+  end if;
+  update public.bevstats_locations set name=trim(item->>'name'),address=trim(item->>'address') where id=(item->>'id')::bigint;
+  update public.bevstats_report_totals set current_beers=new_current where report_id=p_report_id and location_id=(item->>'id')::bigint;
+  changed_count:=changed_count+1;
+ end loop;
+ return jsonb_build_object('ok',true,'updated',changed_count);
+end $$;
+revoke all on function public.bevstats_save_baseline_edits(bigint,jsonb) from public,anon;
+grant execute on function public.bevstats_save_baseline_edits(bigint,jsonb) to authenticated;
+
+grant select on public.bevstats_dashboard to anon,authenticated;
+notify pgrst,'reload schema';
+commit;
+select count(*) as restaurants,count(current_beers) as november_entries,
+ sum(baseline_beers) as october_baseline_beers,sum(baseline_beers)/24 as october_baseline_ce,
+ sum(current_beers) as november_beers,sum(current_beers)/24 as november_ce
+from public.bevstats_dashboard;

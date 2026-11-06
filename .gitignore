@@ -9,3 +9,6 @@ __pycache__/
 # Local preview server output
 preview.stdout.log
 preview.stderr.log
+
+# Supabase CLI local connection metadata
+pitcher-tracker/supabase/.temp/

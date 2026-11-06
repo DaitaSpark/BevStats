@@ -1,0 +1,196 @@
+{
+  "as_of_date": "2026-11-05",
+  "period_confirmation_pending": false,
+  "printed_totals": {
+    "october_ce": "592.44",
+    "november_ce": "144.67",
+    "change_ce": "-447.78",
+    "percent_change": "-75.58"
+  },
+  "rows": [
+    {
+      "name": "Wild Wing Cafe - Hamilton Mill",
+      "address": "3517 Braselton Highway, Dacula, GA 30019",
+      "october_ce": "62.00",
+      "november_ce": "41.33",
+      "change_ce": "-20.67",
+      "percent_change": "-33.33"
+    },
+    {
+      "name": "Hammerheads Seafood & Sports",
+      "address": "415 Peachtree Indus Blvd, Suwanee, GA 30024",
+      "october_ce": "27.56",
+      "november_ce": "20.67",
+      "change_ce": "-6.89",
+      "percent_change": "-25.00"
+    },
+    {
+      "name": "Dillon's",
+      "address": "850 Dogwood Rd., Lawrenceville, GA 30044",
+      "october_ce": "62.00",
+      "november_ce": "20.67",
+      "change_ce": "-41.33",
+      "percent_change": "-66.67"
+    },
+    {
+      "name": "The Oyster Pub - Dalton",
+      "address": "933 MARKET ST, Dalton, GA 30720",
+      "october_ce": "34.44",
+      "november_ce": "13.78",
+      "change_ce": "-20.67",
+      "percent_change": "-60.00"
+    },
+    {
+      "name": "The Bat And Ball Pub",
+      "address": "2150-B Johnson Ferry Rd, Atlanta, GA 30319",
+      "october_ce": "20.67",
+      "november_ce": "6.89",
+      "change_ce": "-13.78",
+      "percent_change": "-66.67"
+    },
+    {
+      "name": "Sidelines Grille Jasper",
+      "address": "800 Noah drive, Jasper, GA 30143",
+      "october_ce": "20.67",
+      "november_ce": "6.89",
+      "change_ce": "-13.78",
+      "percent_change": "-66.67"
+    },
+    {
+      "name": "Secrets",
+      "address": "3962 Lawrenceville Hwy, Tucker, GA 30084",
+      "october_ce": "13.78",
+      "november_ce": "6.89",
+      "change_ce": "-6.89",
+      "percent_change": "-50.00"
+    },
+    {
+      "name": "Modern Sports Restaurant",
+      "address": "203 S Tennessee St, Cartersville, GA 30120",
+      "october_ce": "34.44",
+      "november_ce": "6.89",
+      "change_ce": "-27.56",
+      "percent_change": "-80.00"
+    },
+    {
+      "name": "Mazzy's Sports Bar & Grill - Duluth",
+      "address": "3855 Venture Drive, Duluth, GA 30096",
+      "october_ce": "20.67",
+      "november_ce": "6.89",
+      "change_ce": "-13.78",
+      "percent_change": "-66.67"
+    },
+    {
+      "name": "Local 7",
+      "address": "2316 Main Street, Tucker, GA 30084",
+      "october_ce": "34.44",
+      "november_ce": "6.89",
+      "change_ce": "-27.56",
+      "percent_change": "-80.00"
+    },
+    {
+      "name": "Big Shots Billiards",
+      "address": "101 Emma Lane, Woodstock, GA 30189",
+      "october_ce": "6.89",
+      "november_ce": "6.89",
+      "change_ce": "0.00",
+      "percent_change": "0.00"
+    },
+    {
+      "name": "Will Henry's",
+      "address": "1228 Rockbridge Rd., Stone Mountain, GA 30087",
+      "october_ce": "27.56",
+      "november_ce": "0.00",
+      "change_ce": "-27.56",
+      "percent_change": "-100.00"
+    },
+    {
+      "name": "Tony's Sports Bar & Grill - Duluth",
+      "address": "2590 PEACHTREE INDUSTRIAL BLVD, Duluth, GA 30096",
+      "october_ce": "27.56",
+      "november_ce": "0.00",
+      "change_ce": "-27.56",
+      "percent_change": "-100.00"
+    },
+    {
+      "name": "Rocco's Pub",
+      "address": "47 Mountainside Village, Jasper, GA 30143",
+      "october_ce": "55.11",
+      "november_ce": "0.00",
+      "change_ce": "-55.11",
+      "percent_change": "-100.00"
+    },
+    {
+      "name": "Johnny's Pizza - Hickory Flat",
+      "address": "6124 Hickory Flat Highway, Canton, GA 30115",
+      "october_ce": "20.67",
+      "november_ce": "0.00",
+      "change_ce": "-20.67",
+      "percent_change": "-100.00"
+    },
+    {
+      "name": "Jimmy's Tequila & Carnes Mexican Steak Seafood",
+      "address": "6365 Peachtree Industrial Blvd, Doraville, GA 30360",
+      "october_ce": "27.56",
+      "november_ce": "0.00",
+      "change_ce": "-27.56",
+      "percent_change": "-100.00"
+    },
+    {
+      "name": "Jefferson's - Dalton",
+      "address": "200 North Hamilton St, Dalton, GA 30720",
+      "october_ce": "6.89",
+      "november_ce": "0.00",
+      "change_ce": "-6.89",
+      "percent_change": "-100.00"
+    },
+    {
+      "name": "Hooligans",
+      "address": "8440 Holcomb Bridge Rd, Roswell, GA 30022",
+      "october_ce": "13.78",
+      "november_ce": "0.00",
+      "change_ce": "-13.78",
+      "percent_change": "-100.00"
+    },
+    {
+      "name": "Firebird Restaurant",
+      "address": "4719 Ashford Dunwoody Rd, Dunwoody, GA 30338",
+      "october_ce": "27.56",
+      "november_ce": "0.00",
+      "change_ce": "-27.56",
+      "percent_change": "-100.00"
+    },
+    {
+      "name": "El Dorado - Cartersville",
+      "address": "910 Joe Frank Harris Pkwy Se, Cartersville, GA 30120",
+      "october_ce": "6.89",
+      "november_ce": "0.00",
+      "change_ce": "-6.89",
+      "percent_change": "-100.00"
+    },
+    {
+      "name": "Dave & Buster's - Sugarloaf",
+      "address": "5900 Sugarloaf Pkwy, Lawrenceville, GA 30043",
+      "october_ce": "41.33",
+      "november_ce": "0.00",
+      "change_ce": "-41.33",
+      "percent_change": "-100.00"
+    }
+  ],
+  "prior_start": "2026-10-01",
+  "prior_end": "2026-10-31",
+  "current_start": "2026-11-01",
+  "current_end": "2026-11-05",
+  "replace_october_baseline": false,
+  "carried_forward_rows": [
+    {
+      "name": "B&W Burgers Buns & Brews",
+      "reason": "Retain the previously supplied zero entry; not present in the November 4 pasted report."
+    }
+  ],
+  "notes": [
+    "Report date confirmed by user as November 5, 2026.",
+    "All 21 supplied restaurant values match November 4. Total and product rows excluded. B&W is absent and remains awaiting.",
+    "Restaurant sums retain source rounding: October 592.47 CE; November 144.68 CE versus printed 144.67 CE."
+  ]
+}

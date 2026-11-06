@@ -1,29 +1,15 @@
 # SEC Championship Ticket Giveaway
 
-The production app uses shared Supabase report data. Anyone can view Beers and prior-year comparisons without signing in. Jeff (jeff.eckard@daitaspark.com) and Corey (corey.eckard@eaglerocks.com) can sign in with Admin using their email and password, then edit and save the table. Daily import UI remains pending.
+The current dashboard reports November 2026 month-to-date against the full October 2026 baseline. It selects the latest daily snapshot by its as-of date and displays the database's actual reporting periods. The latest supplied report is as of November 2, 2026.
 
-See the [repository setup guide](../README.md) for schema setup, the initial 22-restaurant import, admin assignment, allowed sign-in redirect URLs, local preview, and hosting instructions. The supplied URL and publishable key are in supabase-public.json; no secret keys are stored there.
+Use `supabase/import-november-02-2026.sql` for this update. Routine daily imports retain report history and location IDs; they do not wipe the database. The October column in this source corrects the original partial baseline. Later daily sources preserve the full-month baseline by default.
 
-The tables, initial report, and admin assignment are configured in Supabase; the local preview has been verified against the live data. The production app does not load sample data or fall back to browser-local demo records.
+Volumes display in Beers with a small CE number underneath (Beers / 24). Percentage comparisons round to whole numbers. Null current totals show awaiting data, while a reported zero is treated as an actual value. Total Beers / % change sorts the tiles highest first; missing percentages appear last.
 
-For the Beers update, run `supabase/convert-to-beers.sql` on the existing database before deployment. Stored volumes are multiplied by 24 exactly once; percentage changes and prices stay unchanged. See the repository guide for rollout details.
+Jeff and Corey can sign in using Admin and their individual Supabase Auth email/password to edit current totals, names, and addresses. Baselines are read-only. Set / reset password handles first-password setup and recovery for existing accounts. Public viewing requires no login.
 
-Location tiles and the detail table show current Beers totals and percentage-only comparisons against the report's prior-year period. Prior-year counts and count differences remain stored and available in CSV export, but are hidden in these location views. This comparison is not against a previous daily upload.
+See the [repository guide](../README.md) for build, hosting, import, access, and validation instructions. Older local setup/import files are retained for historical reference and are not part of the current daily-import workflow.
 
-Displayed percentage comparisons round to whole percentages in tiles and the table (for example, 12.50% displays as +13%). Database values and CSV export retain their original precision.
+## Hourly live-report sync
 
-Use Total Beers / % change above the board to sort tiles descending by current report volume or the source percentage change. Total Beers is the default. Percentage ties sort by Beers, then location name; missing percentages appear last. Switching sort resets the tile page and updates ranks and address disclosures. The table and CSV keep their total-Beers order.
-
-## Restored table editing
-
-Run `supabase/enable-table-editing.sql` in Supabase SQL Editor once before using this update. Ensure both authorized emails exist as confirmed Supabase Auth users with individual passwords. Admin sign-in does not send email or redirect to a verification link. Everyone else continues to view without signing in. Use Edit table ? Save changes for location/address, current/prior Beers, and percentage corrections. Save is atomic and detects concurrent changes. No sales data is changed by the permission migration itself.
-
-For an existing account without a password, use Admin ? enter email ? Set / reset password. Open the recovery email link and choose/confirm a password in the app. Locally, allow http://localhost:8001/ in Supabase Auth redirect URLs first. No account deletion or new SQL is needed. Routine sign-in still uses email/password.
-
-## October 2026 baseline
-
-For this update, run `supabase/set-october-2026-baseline.sql` in Supabase SQL Editor. It fixes the comparison to the October 1-29, 2026 current-data column. New report values compare with that snapshot; baseline amounts are read-only in the editor. Original 2025 report values remain stored. The migration must run before deploying this version.
-
-Current Beers totals show a small CE value underneath (Beers divided by 24). Percentage displays remain whole numbers. The October report starts at 0% against itself. Future imports must retain location IDs to match the correct baseline.
-
-November starts as a separate report with blank database totals, displayed as 0.00 Beers / 0.00 CE and Awaiting November data. October retains its real baseline totals. Entering zero explicitly is a reported result, not an awaiting state. Rerun the baseline SQL if its earlier version was applied; existing baseline and November values are preserved.
+See [hourly sync setup](supabase/HOURLY-SYNC.md) for the migration, Edge Function deployment, manual validation, hourly Cron schedule, and dashboard timestamp. The sync function is deployed and hourly polling is active as of November 6, 2026. The dashboard assets include the last-successful-check timestamp.
