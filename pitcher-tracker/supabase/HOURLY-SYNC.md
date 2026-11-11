@@ -88,8 +88,10 @@ In **Vault**, create these two secrets:
 | `bevstats_sync_secret` | Exactly the same value as SYNC_SECRET |
 
 Run `schedule-hourly-sync.sql` in SQL Editor. It schedules minute zero of every
-hour, around the clock. Reapplying updates the named job instead of adding another.
-UTC scheduling is fine: every hour remains every hour through daylight-saving changes.
+hour from 8 a.m. through 8 p.m. Eastern, inclusive (13 pulls per day).
+Reapplying updates the named job instead of adding another. Cron checks hourly,
+but the SQL only dispatches the function during that Eastern-time window.
+America/New_York conversion automatically follows daylight-saving changes.
 
 Verify the next run in Cron history and Edge Function logs. HTTP dispatch success
 alone does not prove import success: check `last_success_at` and `last_error` too.
@@ -146,3 +148,9 @@ Vault configuration and extensions are installed on BevStats. The named
 of the exact scheduled HTTP command returned HTTP 200 with zero changed
 restaurants. The next natural hourly execution should still be checked in Cron
 history. Dashboard publication remains a separate step.
+
+## Daytime schedule ? November 11, 2026
+
+Polling is restricted to 8 a.m.?8 p.m. America/New_York, inclusive, every day.
+No report download or Edge Function invocation occurs from 9 p.m. through 7 a.m.
+Cron still evaluates a small SQL time check hourly. The named job is reused.

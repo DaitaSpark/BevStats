@@ -1,5 +1,6 @@
 -- First create Vault secrets bevstats_function_url and bevstats_sync_secret.
 -- Enable Cron (pg_cron) and pg_net in Supabase Integrations before running.
+-- Only dispatch from 08:00 through 20:00 America/New_York (DST-aware).
 select cron.schedule('bevstats-hourly-sync','0 * * * *',$job$
  select net.http_post(
   url := (select decrypted_secret from vault.decrypted_secrets where name='bevstats_function_url'),
@@ -7,5 +8,6 @@ select cron.schedule('bevstats-hourly-sync','0 * * * *',$job$
    (select decrypted_secret from vault.decrypted_secrets where name='bevstats_sync_secret')),
   body := '{}'::jsonb,
   timeout_milliseconds := 90000
- );
+ )
+ where extract(hour from now() at time zone 'America/New_York') between 8 and 20;
 $job$);
