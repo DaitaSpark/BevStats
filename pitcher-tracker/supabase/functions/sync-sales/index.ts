@@ -1,4 +1,5 @@
 import { parseWorkbook } from "./report.ts";
+import { validateDownload } from "./download.mjs";
 
 Deno.serve(async request => {
   const secret = Deno.env.get("SYNC_SECRET");
@@ -19,7 +20,7 @@ Deno.serve(async request => {
     const response = await fetch(url, {signal: AbortSignal.timeout(45000)});
     if (!response.ok) throw new Error("Report download failed");
     const data = await response.arrayBuffer();
-    if (data.byteLength > 5000000) throw new Error("Report exceeds size limit");
+    validateDownload(data);
     const parsed = await parseWorkbook(data);
     const result = await rpc("bevstats_sync_sales", {p_started: started, p_rows: parsed.rows, p_cache_time: parsed.source_cache_time});
     return Response.json(result);

@@ -154,3 +154,11 @@ history. Dashboard publication remains a separate step.
 Polling is restricted to 8 a.m.?8 p.m. America/New_York, inclusive, every day.
 No report download or Edge Function invocation occurs from 9 p.m. through 7 a.m.
 Cron still evaluates a small SQL time check hourly. The named job is reused.
+
+## Expired report links
+
+Eagle Rock QuickLinks can expire and return an HTML error with HTTP 200.
+The sync rejects this response, records the expiration message, and preserves
+last-successful sales and timestamp. Generate a fresh link to the same report,
+update the Edge Function REPORT_URL secret, and invoke a manual sync to verify
+recovery. The Cron job and Vault sync secret do not need changing.
